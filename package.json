@@ -22,10 +22,7 @@
     "dist"
   ],
   "scripts": {
-    "clean": "rimraf dist",
-    "prebuild": "yarn run clean",
     "build": "tsc --target es2018 --project tsconfig.build.json",
-    "preversion": "yarn run build",
     "test": "jest --runInBand",
     "test:watch": "jest --watch --runInBand",
     "lint": "eslint '*/**/*.{js,jsx,ts,tsx}'",
@@ -39,6 +36,7 @@
     "form-data": "^4.0.0"
   },
   "devDependencies": {
+    "@changesets/cli": "^2.27.7",
     "@types/jest": "^29.2.3",
     "@types/sleep": "^0.0.8",
     "@typescript-eslint/eslint-plugin": "^5.44.0",
