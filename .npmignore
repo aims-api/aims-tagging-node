@@ -1,0 +1,16 @@
+.DS_Store
+node_modules
+test
+jestMatchers
+src
+CODEOWNERS
+.env
+.eslintrc
+jest.config.ts
+jest.setup.ts
+tsconfig.json
+tsconfig.build.json
+.changeset
+.circleci
+.github
+
