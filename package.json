@@ -1,6 +1,6 @@
 {
   "name": "@aims-api/aims-tagging-node",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "A client package for AIMS Tagging API",
   "license": "UNLICENSED",
   "homepage": "https://github.com/aims-api/aims-tagging-node",
