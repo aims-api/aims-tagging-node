@@ -9,5 +9,6 @@ export default {
   },
   testTimeout: 10000,
   modulePathIgnorePatterns: ['<rootDir>/dist/'],
-  setupFilesAfterEnv: ['./jest.setup.ts']
+  setupFilesAfterEnv: ['./jest.setup.ts'],
+  testRegex: '.*\\.test\\.ts$',
 }

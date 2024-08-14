@@ -1,4 +1,4 @@
-import '../../../jestMatchers/toBeNumberOrNull'
+import '../../../jestMatchers/toBeNumberOrNull.js'
 
 import { Categories, Track } from '../../../src/types/index.js'
 import {
@@ -10,7 +10,7 @@ import { describe, expect, test } from '@jest/globals'
 import { AxiosError } from 'axios'
 import { DetailResponse } from '../../../src/endpoints/track/detail.js'
 import { WrappedResponse } from '../../../src/helpers/response.js'
-import { authenticatedTestClient } from '../../client'
+import { authenticatedTestClient } from '../../client.js'
 import fs from 'fs'
 import path from 'path'
 import { sleep } from 'sleep'
