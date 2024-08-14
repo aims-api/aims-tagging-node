@@ -11,11 +11,11 @@ describe('Endpoints that require authentication', () => {
       clientId: process.env.TEST_CLIENT_ID ?? '',
       clientSecret: process.env.TEST_CLIENT_SECRET ?? '',
     }
- 
-     authData = await new Client(clientData).endpoints.authentication.authenticate({
-       userEmail: process.env.TEST_USER_EMAIL ?? '',
-       userPassword: process.env.TEST_USER_PASSWORD ?? '',
-     })
+
+    authData = await new Client(clientData).endpoints.authentication.authenticate({
+      userEmail: process.env.TEST_USER_EMAIL ?? '',
+      userPassword: process.env.TEST_USER_PASSWORD ?? '',
+    })
 
     authenticatedTestClient = new Client({
       ...clientData,
@@ -42,7 +42,7 @@ describe('Endpoints that require authentication', () => {
     expect(response).toEqual({
       data: expect.arrayContaining(
         [expect.objectContaining({ id: expect.any(String), priority: expect.any(Number) })]
-    ),
+      ),
       userData: {
         remainingRequests: expect.any(String),
       }
