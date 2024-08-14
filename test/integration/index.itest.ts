@@ -26,8 +26,8 @@ describe('Batch length endpoint', () => {
     const testClient = new Client({
       clientId: process.env.TEST_CLIENT_ID ?? '',
       clientSecret: process.env.TEST_CLIENT_SECRET ?? '',
-      // userEmail: process.env.TEST_USER_EMAIL ?? '',
-      // userPassword: process.env.TEST_USER_PASSWORD ?? '',
+      userEmail: process.env.TEST_USER_EMAIL ?? '',
+      userPassword: process.env.TEST_USER_PASSWORD ?? '',
      })
     const response = await testClient.endpoints.batch.length()
     expect(response).toEqual({
