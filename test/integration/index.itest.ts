@@ -41,7 +41,7 @@ describe('Endpoints that require authentication', () => {
 
     expect(response).toEqual({
       data: expect.arrayContaining(
-        [expect.objectContaining({ id: expect.any(String), priority: expect.any(String) })]
+        [expect.objectContaining({ id: expect.any(String), priority: expect.any(Number) })]
     ),
       userData: {
         remainingRequests: expect.any(String),
