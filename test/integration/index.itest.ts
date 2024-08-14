@@ -1,39 +1,48 @@
 import { describe, expect, test } from '@jest/globals'
 import { Client } from '../../src/client/index.js'
+import { AuthenticateResponse } from '../../src/endpoints/authentication/authenticate.js'
 
-describe('Authenticate endpoint', () => {
-  test('success, returns user data', async () => {
-    const testClient = new Client({
-     clientId: process.env.TEST_CLIENT_ID ?? '',
-     clientSecret: process.env.TEST_CLIENT_SECRET ?? '',
-    })
+describe('Endpoints that require authentication', () => {
+  let authData: AuthenticateResponse
+  let authenticatedTestClient: Client
 
-    const response = await testClient.endpoints.authentication.authenticate({
-      userEmail: process.env.TEST_USER_EMAIL ?? '',
-      userPassword: process.env.TEST_USER_PASSWORD ?? '',
-    })
-  
-    expect(response).toMatchObject({
-      id: expect.any(String),
-      token: expect.any(Object),
-      remainingMonthlyRequests: expect.any(Number),
-    })
-  })
-})
-
-describe('Batch length endpoint', () => {
-  test('success, returns existing batch count', async () => {
-    const testClient = new Client({
+  beforeAll(async () => {
+    const clientData = {
       clientId: process.env.TEST_CLIENT_ID ?? '',
       clientSecret: process.env.TEST_CLIENT_SECRET ?? '',
-      userEmail: process.env.TEST_USER_EMAIL ?? '',
-      userPassword: process.env.TEST_USER_PASSWORD ?? '',
+    }
+ 
+     authData = await new Client(clientData).endpoints.authentication.authenticate({
+       userEmail: process.env.TEST_USER_EMAIL ?? '',
+       userPassword: process.env.TEST_USER_PASSWORD ?? '',
      })
-    const response = await testClient.endpoints.batch.length()
+
+    authenticatedTestClient = new Client({
+      ...clientData,
+      apiUserToken: authData.token
+    })
+  })
+
+  test('success, returns count of all batches', async () => {
+    const response = await authenticatedTestClient.endpoints.batch.length()
+
     expect(response).toEqual({
       data: expect.objectContaining({
         length: expect.any(Number)
       }),
+      userData: {
+        remainingRequests: expect.any(String),
+      }
+    })
+  })
+
+  test('success, returns all categories', async () => {
+    const response = await authenticatedTestClient.endpoints.category.list()
+
+    expect(response).toEqual({
+      data: expect.arrayContaining(
+        [expect.objectContaining({ id: expect.any(String), priority: expect.any(String) })]
+    ),
       userData: {
         remainingRequests: expect.any(String),
       }
