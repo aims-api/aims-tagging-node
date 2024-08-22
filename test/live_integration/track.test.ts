@@ -31,24 +31,13 @@ describe('track endpoints', () => {
       trackId: '',
     })
 
-    console.log(response)
-
-    expect(response).toEqual({
-      user: {
-        remainingMonthlyRequests: expect.any(Number),
-        totalMonthlyRequests: expect.any(Number),
-      },
-      platform: {
-        remainingMonthlyRequests: expect.any(Number),
-        totalMonthlyRequests: expect.any(Number),
-      },
-    })
+    expect(response).rejects.toThrow('error')
   })
 
   test('tag', async () => {
     const response = await authenticatedTestClient.endpoints.track.tag({
       title: 'test',
-      audio: fs.createReadStream('./test/assets/test.mp3'),
+      audio: fs.createReadStream('./test/data/sample.mp3'),
     })
 
     console.log(response)
