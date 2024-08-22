@@ -11,6 +11,8 @@ describe('Authenticate endpoint', () => {
       userPassword: process.env.TEST_USER_PASSWORD ?? '',
     })
 
+    console.log(response)
+
     expect(response).toMatchObject({
       id: expect.any(String),
       lastLoginAt: expect.any(String),
