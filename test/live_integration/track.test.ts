@@ -28,14 +28,12 @@ describe('track endpoints', () => {
   })
 
   test('tag, detail and delete', async () => {
-    let taggedTrack: Track
-
     const tagResponse = await authenticatedTestClient.endpoints.track.tag({
       title: 'test',
       audio: fs.createReadStream('./test/data/sample.mp3'),
     })
 
-    taggedTrack = tagResponse.data
+    const taggedTrack = tagResponse.data
 
     expect(tagResponse).toMatchObject({
       data: expect.objectContaining({
