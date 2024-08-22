@@ -1,6 +1,7 @@
 import { describe, expect, test } from '@jest/globals'
 import { Client } from '../../src/client/index.js'
 import { AuthenticateResponse } from '../../src/endpoints/authentication/authenticate.js'
+import fs from 'fs'
 
 describe('track endpoints', () => {
   let authData: AuthenticateResponse
@@ -8,18 +9,16 @@ describe('track endpoints', () => {
 
   beforeAll(async () => {
     const clientData = {
-      clientId: 'it8u1n29P7rnY0-d',
-      clientSecret: 'Xjye6axPtFcu_9luhmUC_BYbLDQsiD0a',
+      clientId: process.env.TEST_CLIENT_ID ?? '',
+      clientSecret: process.env.TEST_CLIENT_SECRET ?? '',
     }
 
     authData = await new Client(
       clientData,
     ).endpoints.authentication.authenticate({
-      userEmail: 'moyefi4113@larland.com',
-      userPassword: 'VfhvHj57VJEXUh',
+      userEmail: process.env.TEST_USER_EMAIL ?? '',
+      userPassword: process.env.TEST_USER_PASSWORD ?? '',
     })
-
-    console.log(authData)
 
     authenticatedTestClient = new Client({
       ...clientData,
@@ -30,6 +29,26 @@ describe('track endpoints', () => {
   test('trackDetail', async () => {
     const response = await authenticatedTestClient.endpoints.track.detail({
       trackId: '',
+    })
+
+    console.log(response)
+
+    expect(response).toEqual({
+      user: {
+        remainingMonthlyRequests: expect.any(Number),
+        totalMonthlyRequests: expect.any(Number),
+      },
+      platform: {
+        remainingMonthlyRequests: expect.any(Number),
+        totalMonthlyRequests: expect.any(Number),
+      },
+    })
+  })
+
+  test('tag', async () => {
+    const response = await authenticatedTestClient.endpoints.track.tag({
+      title: 'test',
+      audio: fs.createReadStream('./test/assets/test.mp3'),
     })
 
     console.log(response)
