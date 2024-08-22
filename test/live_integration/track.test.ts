@@ -2,6 +2,7 @@ import { describe, expect, test } from '@jest/globals'
 import { Client } from '../../src/client/index.js'
 import { AuthenticateResponse } from '../../src/endpoints/authentication/authenticate.js'
 import fs from 'fs'
+import { Track } from '../../src/index.js'
 
 describe('track endpoints', () => {
   let authData: AuthenticateResponse
@@ -26,31 +27,47 @@ describe('track endpoints', () => {
     })
   })
 
-  test('trackDetail', async () => {
-    const response = await authenticatedTestClient.endpoints.track.detail({
-      trackId: '',
-    })
+  test('tag, detail and delete', () => {
+    let taggedTrack: Track
 
-    expect(response).rejects.toThrow('error')
-  })
+    it('tag', async () => {
+      const response = await authenticatedTestClient.endpoints.track.tag({
+        title: 'test',
+        audio: fs.createReadStream('./test/data/sample.mp3'),
+      })
 
-  test('tag', async () => {
-    const response = await authenticatedTestClient.endpoints.track.tag({
-      title: 'test',
-      audio: fs.createReadStream('./test/data/sample.mp3'),
-    })
+      taggedTrack = response.data
 
-    console.log(response)
+      expect(response).toEqual({
+        data: expect.objectContaining({
+          id: expect.any(String),
+          createdAt: expect.any(String),
+          title: expect.any(String),
+          filesize: expect.any(Number),
+        }),
+      })
 
-    expect(response).toEqual({
-      user: {
-        remainingMonthlyRequests: expect.any(Number),
-        totalMonthlyRequests: expect.any(Number),
-      },
-      platform: {
-        remainingMonthlyRequests: expect.any(Number),
-        totalMonthlyRequests: expect.any(Number),
-      },
+      it('detail', async () => {
+        if (taggedTrack.id === undefined) {
+          return
+        }
+        const response = await authenticatedTestClient.endpoints.track.detail({
+          trackId: taggedTrack.id,
+        })
+
+        expect(response.data).toEqual(taggedTrack)
+      })
+
+      it('delete', async () => {
+        if (taggedTrack.id === undefined) {
+          return
+        }
+        const response = await authenticatedTestClient.endpoints.track.delete({
+          trackId: taggedTrack.id,
+        })
+        console.log(response)
+        expect(response.data).toEqual(taggedTrack)
+      })
     })
   })
 })
