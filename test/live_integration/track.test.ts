@@ -27,47 +27,42 @@ describe('track endpoints', () => {
     })
   })
 
-  test('tag, detail and delete', () => {
+  test('tag, detail and delete', async () => {
     let taggedTrack: Track
 
-    it('tag', async () => {
-      const response = await authenticatedTestClient.endpoints.track.tag({
-        title: 'test',
-        audio: fs.createReadStream('./test/data/sample.mp3'),
-      })
-
-      taggedTrack = response.data
-
-      expect(response).toEqual({
-        data: expect.objectContaining({
-          id: expect.any(String),
-          createdAt: expect.any(String),
-          title: expect.any(String),
-          filesize: expect.any(Number),
-        }),
-      })
-
-      it('detail', async () => {
-        if (taggedTrack.id === undefined) {
-          return
-        }
-        const response = await authenticatedTestClient.endpoints.track.detail({
-          trackId: taggedTrack.id,
-        })
-
-        expect(response.data).toEqual(taggedTrack)
-      })
-
-      it('delete', async () => {
-        if (taggedTrack.id === undefined) {
-          return
-        }
-        const response = await authenticatedTestClient.endpoints.track.delete({
-          trackId: taggedTrack.id,
-        })
-        console.log(response)
-        expect(response.data).toEqual(taggedTrack)
-      })
+    const tagResponse = await authenticatedTestClient.endpoints.track.tag({
+      title: 'test',
+      audio: fs.createReadStream('./test/data/sample.mp3'),
     })
+
+    taggedTrack = tagResponse.data
+
+    expect(tagResponse).toEqual({
+      data: expect.objectContaining({
+        id: expect.any(String),
+        createdAt: expect.any(String),
+        title: expect.any(String),
+        filesize: expect.any(Number),
+      }),
+    })
+
+    if (taggedTrack.id === undefined) {
+      return
+    }
+    const detailResponse = await authenticatedTestClient.endpoints.track.detail(
+      {
+        trackId: taggedTrack.id,
+      },
+    )
+
+    expect(detailResponse.data).toEqual(taggedTrack)
+
+    const deleteResponse = await authenticatedTestClient.endpoints.track.delete(
+      {
+        trackId: taggedTrack.id,
+      },
+    )
+    console.log(deleteResponse)
+    expect(deleteResponse.data).toEqual(taggedTrack)
   })
 })
