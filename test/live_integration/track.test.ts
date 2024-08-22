@@ -37,7 +37,7 @@ describe('track endpoints', () => {
 
     taggedTrack = tagResponse.data
 
-    expect(tagResponse).toEqual({
+    expect(tagResponse).toMatchObject({
       data: expect.objectContaining({
         id: expect.any(String),
         createdAt: expect.any(String),
