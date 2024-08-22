@@ -2,7 +2,6 @@ import { describe, expect, test } from '@jest/globals'
 import { Client } from '../../src/client/index.js'
 import { AuthenticateResponse } from '../../src/endpoints/authentication/authenticate.js'
 import fs from 'fs'
-import { Track } from '../../src/index.js'
 
 describe('track endpoints', () => {
   let authData: AuthenticateResponse
