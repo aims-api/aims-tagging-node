@@ -62,7 +62,6 @@ describe('track endpoints', () => {
         trackId: taggedTrack.id,
       },
     )
-    console.log(deleteResponse)
     expect(deleteResponse.data).toEqual(taggedTrack)
   })
 })
