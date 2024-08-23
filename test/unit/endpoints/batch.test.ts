@@ -7,7 +7,7 @@ import {
 import { describe, expect, test } from '@jest/globals'
 
 import { AxiosError } from 'axios'
-import { authenticatedTestClient } from '../../client'
+import { authenticatedTestClient } from '../../client.js'
 import fs from 'fs'
 import path from 'path'
 

@@ -19,6 +19,7 @@ jobs:
 
       - run: yarn install
       - run: yarn test
+      - run: yarn test-integration
       - run: yarn import-sort '*/**/*.{ts,tsx,js,jsx}'
       - run: yarn format
       - run: yarn ci-lint

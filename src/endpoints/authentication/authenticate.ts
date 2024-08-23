@@ -27,7 +27,7 @@ interface MonthlyRequestLimits {
   remainingMonthlyRequests: number
 }
 
-interface AuthenticateResponse
+export interface AuthenticateResponse
   extends MonthlyRequestLimits,
   SubscriptionStatus {
   id: string
