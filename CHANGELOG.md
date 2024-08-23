@@ -1,5 +1,11 @@
 # @aims-api/aims-tagging-node
 
+## 0.0.3
+
+### Patch Changes
+
+- d8e3fce: live integration test, dependencies upgrade
+
 ## 0.0.2
 
 ### Patch Changes
