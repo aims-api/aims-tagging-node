@@ -45,6 +45,7 @@ import {
   updateTaxonomyMapping
 } from '../endpoints/apiUser/index.js'
 import axios, { AxiosInstance } from 'axios'
+import { version as packageVersion } from '../../package.json'
 
 import { Endpoints } from '../endpoints/index.js'
 import { categoryList } from '../endpoints/category/list.js'
@@ -144,7 +145,8 @@ class Client {
         'X-Client-Id': clientId,
         'X-Client-Secret': clientSecret,
         'X-Api-User-Token': apiUserToken?.token ?? undefined,
-        'X-Forwarded-For': ipAddr
+        'X-Forwarded-For': ipAddr,
+        'User-Agent': `aims-tagging-node/${packageVersion}`
       }
     })
   }
