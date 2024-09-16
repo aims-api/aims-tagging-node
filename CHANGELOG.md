@@ -1,5 +1,11 @@
 # @aims-api/aims-tagging-node
 
+## 0.0.5
+
+### Patch Changes
+
+- b7ee730: package version in user-agent header
+
 ## 0.0.4
 
 ### Patch Changes
