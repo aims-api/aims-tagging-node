@@ -10,26 +10,26 @@ describe('track endpoints', () => {
   beforeAll(async () => {
     const clientData = {
       clientId: process.env.TEST_CLIENT_ID ?? '',
-      clientSecret: process.env.TEST_CLIENT_SECRET ?? '',
+      clientSecret: process.env.TEST_CLIENT_SECRET ?? ''
     }
 
     authData = await new Client(
-      clientData,
+      clientData
     ).endpoints.authentication.authenticate({
       userEmail: process.env.TEST_USER_EMAIL ?? '',
-      userPassword: process.env.TEST_USER_PASSWORD ?? '',
+      userPassword: process.env.TEST_USER_PASSWORD ?? ''
     })
 
     authenticatedTestClient = new Client({
       ...clientData,
-      apiUserToken: authData.token,
+      apiUserToken: authData.token
     })
   })
 
   test('tag, detail and delete', async () => {
     const tagResponse = await authenticatedTestClient.endpoints.track.tag({
       title: 'test',
-      audio: fs.createReadStream('./test/data/sample.mp3'),
+      audio: fs.createReadStream('./test/data/sample.mp3')
     })
 
     const taggedTrack = tagResponse.data
@@ -39,8 +39,8 @@ describe('track endpoints', () => {
         id: expect.any(String),
         createdAt: expect.any(String),
         title: expect.any(String),
-        filesize: expect.any(Number),
-      }),
+        filesize: expect.any(Number)
+      })
     })
 
     if (taggedTrack.id === undefined) {
@@ -48,16 +48,16 @@ describe('track endpoints', () => {
     }
     const detailResponse = await authenticatedTestClient.endpoints.track.detail(
       {
-        trackId: taggedTrack.id,
-      },
+        trackId: taggedTrack.id
+      }
     )
 
     expect(detailResponse.data).toEqual(taggedTrack)
 
     const deleteResponse = await authenticatedTestClient.endpoints.track.delete(
       {
-        trackId: taggedTrack.id,
-      },
+        trackId: taggedTrack.id
+      }
     )
     expect(deleteResponse.data).toEqual(taggedTrack)
   })
