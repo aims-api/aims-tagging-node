@@ -3,14 +3,14 @@ import {
   PathParams,
   RestHandler,
   RestRequest,
-  rest,
+  rest
 } from 'msw'
 import {
   validApiUserToken,
   validClientId,
   validClientSecret,
   validUserEmail,
-  validUserPassword,
+  validUserPassword
 } from '../client.js'
 
 import { API_HOST } from '../../src/client/index.js'
@@ -18,34 +18,34 @@ import { Categories } from '../../src/types/index.js'
 
 const GENERIC_ERROR_MESSAGE = {
   message:
-    'Client id, secret or user api token are invalid, expired or not allowed access!',
+    'Client id, secret or user api token are invalid, expired or not allowed access!'
 }
 const NOT_FOUND_ERROR_MESSAGE = {
   message: "The requested item doesn't exist!",
-  errors: [],
+  errors: []
 }
 const INVALID_DATA_ERROR_MESSAGE = {
   message: 'Item is not valid!',
   errors: [
     {
       property: 'name',
-      message: 'This value should not be blank.',
-    },
-  ],
+      message: 'This value should not be blank.'
+    }
+  ]
 }
 const GENERIC_HEADERS = {
-  'x-remaining-requests': '99',
+  'x-remaining-requests': '99'
 }
 
 const GENERIC_USER_DATA = {
-  remainingRequests: '99',
+  remainingRequests: '99'
 }
 
 const GENERIC_BATCH_RESPONSE = {
   id:
     process.env.TEST_AUTO_TAGGING_API_BATCH_ID ??
     '123456ab-7890-12cd-ef34-a5b6789012ec3',
-  name: process.env.TEST_AUTO_TAGGING_API_BATCH_NAME ?? 'Polka Dance Melodies',
+  name: process.env.TEST_AUTO_TAGGING_API_BATCH_NAME ?? 'Polka Dance Melodies'
 }
 const GENERIC_BATCH_CSV =
   'filename,bpm,key,moods,genres,usages,vocals,decades,instruments\n' +
@@ -66,28 +66,28 @@ const GENERIC_TRACK_RESPONSE = {
     vocals: ['instrumental'],
     decades: ['2010s'],
     tempo: ['medium'],
-    instruments: ['acoustic guitar', 'guitar'],
+    instruments: ['acoustic guitar', 'guitar']
   },
   filesize: 12345678,
   duration: 45,
   processedAt: '2022-01-01T12:34:56+01:00',
   hookUrl: null,
-  modelVersion: 'ab12c3',
+  modelVersion: 'ab12c3'
 }
 
 const GENERIC_REMAINING_MONTHLY_REQUESTS_RESPONSE = {
   user: {
     remainingMonthlyRequests: 100,
-    totalMonthlyRequests: 100,
+    totalMonthlyRequests: 100
   },
   platform: {
     remainingMonthlyRequests: 100,
-    totalMonthlyRequests: 100,
-  },
+    totalMonthlyRequests: 100
+  }
 }
 
 const getCredentials = (
-  req: RestRequest<DefaultBodyType, PathParams<string>>,
+  req: RestRequest<DefaultBodyType, PathParams<string>>
 ): {
   clientId: string | null
   clientSecret: string | null
@@ -100,7 +100,7 @@ const getCredentials = (
 }
 
 const isUserCredentialsValid = (
-  req: RestRequest<DefaultBodyType, PathParams<string>>,
+  req: RestRequest<DefaultBodyType, PathParams<string>>
 ): boolean => {
   const auth = req.headers.get('Authorization')
   if (auth === null) {
@@ -114,14 +114,14 @@ const isUserCredentialsValid = (
 }
 
 const isCredentialsValidAsAnonymous = (
-  req: RestRequest<DefaultBodyType, PathParams<string>>,
+  req: RestRequest<DefaultBodyType, PathParams<string>>
 ): boolean => {
   const { clientId, clientSecret } = getCredentials(req)
   return clientId === validClientId && clientSecret === validClientSecret
 }
 
 const isCredentialsValidAsAuthenticated = (
-  req: RestRequest<DefaultBodyType, PathParams<string>>,
+  req: RestRequest<DefaultBodyType, PathParams<string>>
 ): boolean => {
   const { apiUserToken } = getCredentials(req)
   return (
@@ -137,11 +137,11 @@ const handlers: RestHandler[] = [
       if (isCredentialsValidAsAuthenticated(req)) {
         return res(
           ctx.status(200),
-          ctx.json(GENERIC_REMAINING_MONTHLY_REQUESTS_RESPONSE),
+          ctx.json(GENERIC_REMAINING_MONTHLY_REQUESTS_RESPONSE)
         )
       }
       return res(ctx.status(403), ctx.json(GENERIC_ERROR_MESSAGE))
-    },
+    }
   ),
 
   // authentication
@@ -152,12 +152,12 @@ const handlers: RestHandler[] = [
         ctx.json({
           token: {
             token: 'abcd',
-            expirationDate: '2022-01-01T12:34:56+01:00',
+            expirationDate: '2022-01-01T12:34:56+01:00'
           },
           userScope: {},
           monthlyRequestLimit: 500,
-          remainingMonthlyRequests: 395,
-        }),
+          remainingMonthlyRequests: 395
+        })
       )
     }
     return res(ctx.status(403), ctx.json(GENERIC_ERROR_MESSAGE))
@@ -172,7 +172,7 @@ const handlers: RestHandler[] = [
         return await res(
           ctx.status(200),
           ctx.set(GENERIC_HEADERS),
-          ctx.json(GENERIC_TRACK_RESPONSE),
+          ctx.json(GENERIC_TRACK_RESPONSE)
         )
       }
     }
@@ -185,7 +185,7 @@ const handlers: RestHandler[] = [
         return await res(
           ctx.status(200),
           ctx.set(GENERIC_HEADERS),
-          ctx.json({ ...GENERIC_BATCH_RESPONSE, name }),
+          ctx.json({ ...GENERIC_BATCH_RESPONSE, name })
         )
       }
       return await res(ctx.status(400), ctx.json(INVALID_DATA_ERROR_MESSAGE))
@@ -199,7 +199,7 @@ const handlers: RestHandler[] = [
         return res(
           ctx.status(200),
           ctx.set(GENERIC_HEADERS),
-          ctx.json(GENERIC_BATCH_RESPONSE),
+          ctx.json(GENERIC_BATCH_RESPONSE)
         )
       }
       return res(ctx.status(404), ctx.json(NOT_FOUND_ERROR_MESSAGE))
@@ -213,7 +213,7 @@ const handlers: RestHandler[] = [
         return res(
           ctx.status(200),
           ctx.set(GENERIC_HEADERS),
-          ctx.json(GENERIC_BATCH_RESPONSE),
+          ctx.json(GENERIC_BATCH_RESPONSE)
         )
       }
       return res(ctx.status(404), ctx.json(NOT_FOUND_ERROR_MESSAGE))
@@ -236,8 +236,8 @@ const handlers: RestHandler[] = [
         ctx.status(200),
         ctx.set(GENERIC_HEADERS),
         ctx.json({
-          length: 10,
-        }),
+          length: 10
+        })
       )
     }
     return res(ctx.status(403), ctx.json(GENERIC_ERROR_MESSAGE))
@@ -250,8 +250,8 @@ const handlers: RestHandler[] = [
         ctx.json([
           GENERIC_BATCH_RESPONSE,
           GENERIC_BATCH_RESPONSE,
-          GENERIC_BATCH_RESPONSE,
-        ]),
+          GENERIC_BATCH_RESPONSE
+        ])
       )
     }
     return res(ctx.status(403), ctx.json(GENERIC_ERROR_MESSAGE))
@@ -263,7 +263,7 @@ const handlers: RestHandler[] = [
         return res(
           ctx.status(200),
           ctx.set(GENERIC_HEADERS),
-          ctx.json(GENERIC_BATCH_RESPONSE),
+          ctx.json(GENERIC_BATCH_RESPONSE)
         )
       }
       return res(ctx.status(404), ctx.json(NOT_FOUND_ERROR_MESSAGE))
@@ -277,7 +277,7 @@ const handlers: RestHandler[] = [
         return res(
           ctx.status(200),
           ctx.set(GENERIC_HEADERS),
-          ctx.json(GENERIC_BATCH_RESPONSE),
+          ctx.json(GENERIC_BATCH_RESPONSE)
         )
       }
       return res(ctx.status(404), ctx.json(NOT_FOUND_ERROR_MESSAGE))
@@ -289,7 +289,7 @@ const handlers: RestHandler[] = [
   rest.get(`${API_HOST}/health/`, (req, res, ctx) => {
     return res(
       ctx.status(200),
-      ctx.json(['Nothing to see here. Move it along.']),
+      ctx.json(['Nothing to see here. Move it along.'])
     )
   }),
 
@@ -301,7 +301,7 @@ const handlers: RestHandler[] = [
         return res(
           ctx.status(200),
           ctx.set(GENERIC_HEADERS),
-          ctx.json(GENERIC_TRACK_RESPONSE),
+          ctx.json(GENERIC_TRACK_RESPONSE)
         )
       }
       return res(ctx.status(404), ctx.json(NOT_FOUND_ERROR_MESSAGE))
@@ -315,7 +315,7 @@ const handlers: RestHandler[] = [
         return res(
           ctx.status(200),
           ctx.set(GENERIC_HEADERS),
-          ctx.json(GENERIC_TRACK_RESPONSE),
+          ctx.json(GENERIC_TRACK_RESPONSE)
         )
       }
       return res(ctx.status(404), ctx.json(NOT_FOUND_ERROR_MESSAGE))
@@ -328,8 +328,8 @@ const handlers: RestHandler[] = [
         ctx.status(200),
         ctx.set(GENERIC_HEADERS),
         ctx.json({
-          length: 10,
-        }),
+          length: 10
+        })
       )
     }
     return res(ctx.status(403), ctx.json(GENERIC_ERROR_MESSAGE))
@@ -342,8 +342,8 @@ const handlers: RestHandler[] = [
         ctx.json([
           GENERIC_TRACK_RESPONSE,
           GENERIC_TRACK_RESPONSE,
-          GENERIC_TRACK_RESPONSE,
-        ]),
+          GENERIC_TRACK_RESPONSE
+        ])
       )
     }
     return res(ctx.status(403), ctx.json(GENERIC_ERROR_MESSAGE))
@@ -363,10 +363,10 @@ const handlers: RestHandler[] = [
                 ...GENERIC_TRACK_RESPONSE.tags,
                 [category]: [
                   ...GENERIC_TRACK_RESPONSE.tags[category as Categories],
-                  value,
-                ],
-              },
-            }),
+                  value
+                ]
+              }
+            })
           )
         }
         return await res(ctx.status(400), ctx.json(INVALID_DATA_ERROR_MESSAGE))
@@ -390,9 +390,9 @@ const handlers: RestHandler[] = [
                 ...GENERIC_TRACK_RESPONSE.tags,
                 [category]: GENERIC_TRACK_RESPONSE.tags[
                   category as Categories
-                ].filter((item) => item !== value),
-              },
-            }),
+                ].filter((item) => item !== value)
+              }
+            })
           )
         }
         return await res(ctx.status(400), ctx.json(INVALID_DATA_ERROR_MESSAGE))
@@ -409,12 +409,12 @@ const handlers: RestHandler[] = [
         return await res(
           ctx.status(200),
           ctx.set(GENERIC_HEADERS),
-          ctx.json(GENERIC_TRACK_RESPONSE),
+          ctx.json(GENERIC_TRACK_RESPONSE)
         )
       }
     }
     return await res(ctx.status(403), ctx.json(GENERIC_ERROR_MESSAGE))
-  }),
+  })
 ]
 
 export {
@@ -423,5 +423,5 @@ export {
   GENERIC_BATCH_CSV,
   GENERIC_BATCH_RESPONSE,
   GENERIC_ERROR_MESSAGE,
-  GENERIC_TRACK_RESPONSE,
+  GENERIC_TRACK_RESPONSE
 }

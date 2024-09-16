@@ -9,19 +9,19 @@ describe('apiUser endpoints', () => {
   beforeAll(async () => {
     const clientData = {
       clientId: process.env.TEST_CLIENT_ID ?? '',
-      clientSecret: process.env.TEST_CLIENT_SECRET ?? '',
+      clientSecret: process.env.TEST_CLIENT_SECRET ?? ''
     }
 
     authData = await new Client(
-      clientData,
+      clientData
     ).endpoints.authentication.authenticate({
       userEmail: process.env.TEST_USER_EMAIL ?? '',
-      userPassword: process.env.TEST_USER_PASSWORD ?? '',
+      userPassword: process.env.TEST_USER_PASSWORD ?? ''
     })
 
     authenticatedTestClient = new Client({
       ...clientData,
-      apiUserToken: authData.token,
+      apiUserToken: authData.token
     })
   })
 
@@ -32,12 +32,12 @@ describe('apiUser endpoints', () => {
     expect(response).toEqual({
       user: {
         remainingMonthlyRequests: expect.any(Number),
-        totalMonthlyRequests: expect.any(Number),
+        totalMonthlyRequests: expect.any(Number)
       },
       platform: {
         remainingMonthlyRequests: expect.any(Number),
-        totalMonthlyRequests: expect.any(Number),
-      },
+        totalMonthlyRequests: expect.any(Number)
+      }
     })
   })
 })

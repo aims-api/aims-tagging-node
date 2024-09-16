@@ -45,8 +45,6 @@ import {
   updateTaxonomyMapping
 } from '../endpoints/apiUser/index.js'
 import axios, { AxiosInstance } from 'axios'
-import { version as packageVersion } from '../../package.json'
-
 import { Endpoints } from '../endpoints/index.js'
 import { categoryList } from '../endpoints/category/list.js'
 import { health } from '../endpoints/health/index.js'
@@ -68,6 +66,10 @@ interface Credentials {
   configure: (options: CredentialsOptions) => void
   setApiUserToken: (token: ApiUserToken) => void
   refreshApiUserToken: () => Promise<void>
+}
+
+type PackageJson = Record<string, any> & {
+  version: string
 }
 
 interface UserCredentials {
@@ -138,7 +140,8 @@ class Client {
   }
 
   private readonly refreshClient = (): void => {
-    const { clientId, clientSecret, apiUserToken, apiHost, ipAddr } = this.internal.credentials
+    const { clientId, clientSecret, apiUserToken, apiHost, ipAddr } =
+      this.internal.credentials
     this.client = axios.create({
       baseURL: apiHost,
       headers: {
@@ -146,7 +149,7 @@ class Client {
         'X-Client-Secret': clientSecret,
         'X-Api-User-Token': apiUserToken?.token ?? undefined,
         'X-Forwarded-For': ipAddr,
-        'User-Agent': `aims-tagging-node/${packageVersion}`
+        'User-Agent': `aims-tagging-node/${(require('../../package.json') as PackageJson).version}`
       }
     })
   }
