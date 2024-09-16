@@ -1,5 +1,11 @@
 # @aims-api/aims-tagging-node
 
+## 0.0.4
+
+### Patch Changes
+
+- 1f36a27: user agent in request headers
+
 ## 0.0.3
 
 ### Patch Changes
