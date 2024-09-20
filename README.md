@@ -134,7 +134,7 @@ It's recommended to create a new file for each request handler.
 
 #### TypeScript
 
-You can import input and response types that are provided in every endpoint file. In order to validate reesponse structure and prevent application from crashing, you can use [Zod](https://github.com/colinhacks/zod) library.
+You can import input and response types that are provided in every endpoint file. In order to validate response structure and prevent application from crashing, you may use [Zod](https://github.com/colinhacks/zod) library.
 
 Example
 
