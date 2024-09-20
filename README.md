@@ -68,6 +68,8 @@ In order to use the lirbary you need to obtain credentials by contacting us at [
 
 To access protected routes you need to authenticate in order to get a time-limited token. You need to use this token while creating a client instance.
 
+You may store the token in a cookie or local storage (browser), but you need to retrieve it from the request object. Storing the token in cookies is recommended for security reasons. In case you decide to store it in cookies, you can set Axios interceptor to check if cookie is still valid and if not, terminate user session in order to obtain a new token.
+
 ```typescript
 // pages/api/authenticate.ts
 
@@ -77,25 +79,28 @@ import { Client as TaggingApiClient } from '@aims-api/aims-tagging-node'
 export const createClient = async (req: NextApiRequest) => {
   const { clientId, clientSecret } = await getSiteConfigForRequest(req)
   const apiUserToken = getTokenFromCookie(req)
+
+  // You can retrieve auth_token from cookies or local storage; "authenticate" request does not require this field
   return new TaggingApiClient({
     apiHost: 'HOST_URL', // optional
     clientId: 'YOUR_CLIENT_ID', // required
     clientSecret: 'YOUR_CLIENT_SECRET', // required
-    apiUserToken: JSON.parse(req.cookies.auth_token), // you can get this from local storage as well, "authenticate" request does not require this field
+    apiUserToken: JSON.parse(req.cookies.auth_token),
   })
 }
 
 const handler = async (req: NextApiRequest, res: NextApiResponse) => {
   if (req.method === 'POST') {
     try {
-      const { userEmail, userPassword } = req.body
+      const { userEmail, userPassword } = req.body // credentials: LOGIN, PASSWORD passed from the client-side code
       const aimsClient = createClient(req)
       const response = await aimsClient.endpoints.authentication.authenticate({
         userEmail,
         userPassword,
       })
 
-      const { token, ...rest } = response // removes token from the response to hide from the client-side code (optional)
+      const { token, ...rest } = response // removes token from the response to hide
+      // from the client-side code (optional)
       return
       res
         .setHeader(
@@ -155,7 +160,7 @@ Responses are not validated by this library, therefore you need to parse the str
 
 This library uses Axios under the hood to make requests, so any network error will be of type `AxiosError`. Please, check [Axios documentation](https://axios-http.com/docs/handling_errors) for more information.
 
-Example of parsing error with [zod](https://github.com/colinhacks/zod) on the client side:
+Example of parsing an error with [Zod](https://github.com/colinhacks/zod) on the client side:
 
 ```typescript
 // src/helpers/response.ts
