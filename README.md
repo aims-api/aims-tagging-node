@@ -59,6 +59,8 @@ npm install @aims-api/aims-tagging-node
 
 In order to use the lirbary you need to obtain credentials by contacting us at [hello@aimsapi.com](mailto:hello@aimsapi.com). Credentials consist of CLIENT_ID, CLIENT_SECRET, LOGIN and PASSWORD.
 
+To access protected routes you need to authenticate in order to get a time-limited token. You need to use this token while creating a client instance.
+
 <details open="open">
 <summary>
 
@@ -66,7 +68,7 @@ In order to use the lirbary you need to obtain credentials by contacting us at [
 
 </summary>
 
-To access protected routes you need to authenticate in order to get a time-limited token. You need to use this token while creating a client instance.
+It is common to make a proxy request from client app to the server "Next.js API route" in order to hide foreign URL.
 
 You may store the token in a cookie or local storage (browser), but you need to retrieve it from the request object. Storing the token in cookies is recommended for security reasons. In case you decide to store it in cookies, you can set Axios interceptor to check if cookie is still valid and if not, terminate user session in order to obtain a new token.
 
@@ -81,7 +83,8 @@ export const createClient = async (req: NextApiRequest) => {
   const apiUserToken = getTokenFromCookie(req)
 
   // You can retrieve auth_token from cookies or local storage
-  // "authenticate" request does not require this field
+  // Authentication endpoints (e.g. "authenticate", "register", ...)
+  // do not require "apiUserToken" field
   return new TaggingApiClient({
     apiHost: 'HOST_URL', // optional
     clientId: 'YOUR_CLIENT_ID', // required
@@ -125,13 +128,13 @@ export default handler
 
 ## Usage
 
-It is common to make a proxy request from client app to the server in order to hide foreign URL.
-
 When you create a client instance in your codebase, you can then easily access all the existing endpoints via IDE autocomplete, as well as the required and optional parameters.
+
+It's recommended to create a new file for each request handler.
 
 #### TypeScript
 
-Library is written in TypeScript, therefore you can use input / response types that are provided in every endpoint file.
+You can import input and response types that are provided in every endpoint file. In order to validate reesponse structure and prevent application from crashing, you can use [Zod](https://github.com/colinhacks/zod) library.
 
 Example
 
