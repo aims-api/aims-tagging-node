@@ -80,7 +80,8 @@ export const createClient = async (req: NextApiRequest) => {
   const { clientId, clientSecret } = await getSiteConfigForRequest(req)
   const apiUserToken = getTokenFromCookie(req)
 
-  // You can retrieve auth_token from cookies or local storage; "authenticate" request does not require this field
+  // You can retrieve auth_token from cookies or local storage
+  // "authenticate" request does not require this field
   return new TaggingApiClient({
     apiHost: 'HOST_URL', // optional
     clientId: 'YOUR_CLIENT_ID', // required
@@ -92,7 +93,8 @@ export const createClient = async (req: NextApiRequest) => {
 const handler = async (req: NextApiRequest, res: NextApiResponse) => {
   if (req.method === 'POST') {
     try {
-      const { userEmail, userPassword } = req.body // credentials: LOGIN, PASSWORD passed from the client-side code
+      const { userEmail, userPassword } = req.body // credentials: LOGIN, PASSWORD
+      // passed from the client-side code
       const aimsClient = createClient(req)
       const response = await aimsClient.endpoints.authentication.authenticate({
         userEmail,
@@ -135,6 +137,8 @@ Example
 
 ```typescript
 // src/types/index.ts
+
+...
 
 type Track = Partial<{
   id: string
