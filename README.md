@@ -132,6 +132,8 @@ When you create a client instance in your codebase, you can then easily access a
 
 It's recommended to create a new file for each request handler.
 
+For calling an endpoint `batch.startTagging` credits are required, for each track in a batch user needs to have exactly one credit. To get information about credits availability, please call `apiUser.remainingMonthlyRequests` endpoint, property is named `remainingMonthlyRequests`.
+
 #### TypeScript
 
 You can import input and response types that are provided in every endpoint file. In order to validate response structure and prevent application from crashing, you may use [Zod](https://github.com/colinhacks/zod) library.
@@ -164,6 +166,17 @@ The library provides a set of endpoints that can be found in [src/client/index.t
 ### Response Structure
 
 Responses are not validated by this library, therefore you need to parse the structure on your own, referring to provided response types. If you find any incosistency, please open an issue or contact us via email.
+
+All endpoints excerpt `userData` object that contains `remainingRequests` property, the value is an integer (of type String) that represents the number of credits available for tagging. To access exact response data in the client-side code you need to read `response.data.data`.
+
+```typescript
+type ResponseType = {
+  data: any
+  userData: {
+    remainingRequests: string
+  }
+}
+```
 
 This library uses Axios under the hood to make requests, so any network error will be of type `AxiosError`. Please, check [Axios documentation](https://axios-http.com/docs/handling_errors) for more information.
 
