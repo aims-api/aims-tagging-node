@@ -1,5 +1,11 @@
 # @aims-api/aims-tagging-node
 
+## 0.0.6
+
+### Patch Changes
+
+- 2ae8c26: readme and license file added
+
 ## 0.0.5
 
 ### Patch Changes
