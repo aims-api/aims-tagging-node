@@ -57,7 +57,7 @@ npm install @aims-api/aims-tagging-node
 
 ### Authentication
 
-In order to use the lirbary you need to obtain credentials by contacting us at [hello@aimsapi.com](mailto:hello@aimsapi.com). Credentials consist of CLIENT_ID, CLIENT_SECRET, LOGIN and PASSWORD.
+In order to use the lirbary you need to obtain credentials by contacting us at [hello@aimsapi.com](mailto:hello@aimsapi.com). Credentials consist of `CLIENT_ID`, `CLIENT_SECRET`, `LOGIN` and `PASSWORD`.
 
 To access protected routes you need to authenticate in order to get a time-limited token. You need to use this token while creating a client instance.
 
