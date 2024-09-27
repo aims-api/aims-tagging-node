@@ -125,6 +125,7 @@ export default handler
 ```
 
 </details>
+</details>
 
 ## Usage
 
