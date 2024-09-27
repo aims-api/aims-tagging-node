@@ -19,5 +19,9 @@
     "prettier",
     "standard-with-typescript"
   ],
-  "rules": {}
+  "rules": {
+    "@typescript-eslint/no-var-requires": [
+      0, { "allow": "['/package\\.json$']"}
+    ]
+  }
 }

@@ -8,6 +8,7 @@ CODEOWNERS
 .eslintrc
 jest.config.ts
 jest.setup.ts
+jest.config.integration.ts
 tsconfig.json
 tsconfig.build.json
 .changeset
