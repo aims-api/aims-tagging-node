@@ -133,21 +133,21 @@ const handlers: RestHandler[] = [
   // api user
   rest.get(
     `${API_HOST}/api-user/remaining-monthly-requests/`,
-    (req, res, ctx) => {
+    async (req, res, ctx) => {
       if (isCredentialsValidAsAuthenticated(req)) {
-        return res(
+        return await res(
           ctx.status(200),
           ctx.json(GENERIC_REMAINING_MONTHLY_REQUESTS_RESPONSE)
         )
       }
-      return res(ctx.status(403), ctx.json(GENERIC_ERROR_MESSAGE))
+      return await res(ctx.status(403), ctx.json(GENERIC_ERROR_MESSAGE))
     }
   ),
 
   // authentication
-  rest.post(`${API_HOST}/authenticate/`, (req, res, ctx) => {
+  rest.post(`${API_HOST}/authenticate/`, async (req, res, ctx) => {
     if (isCredentialsValidAsAnonymous(req) && isUserCredentialsValid(req)) {
-      return res(
+      return await res(
         ctx.status(200),
         ctx.json({
           token: {
@@ -160,7 +160,7 @@ const handlers: RestHandler[] = [
         })
       )
     }
-    return res(ctx.status(403), ctx.json(GENERIC_ERROR_MESSAGE))
+    return await res(ctx.status(403), ctx.json(GENERIC_ERROR_MESSAGE))
   }),
 
   // batch
@@ -192,47 +192,47 @@ const handlers: RestHandler[] = [
     }
     return await res(ctx.status(403), ctx.json(GENERIC_ERROR_MESSAGE))
   }),
-  rest.delete(`${API_HOST}/batch/delete/:batchId`, (req, res, ctx) => {
+  rest.delete(`${API_HOST}/batch/delete/:batchId`, async (req, res, ctx) => {
     if (isCredentialsValidAsAuthenticated(req)) {
       const { batchId } = req.params
       if (batchId === GENERIC_BATCH_RESPONSE.id) {
-        return res(
+        return await res(
           ctx.status(200),
           ctx.set(GENERIC_HEADERS),
           ctx.json(GENERIC_BATCH_RESPONSE)
         )
       }
-      return res(ctx.status(404), ctx.json(NOT_FOUND_ERROR_MESSAGE))
+      return await res(ctx.status(404), ctx.json(NOT_FOUND_ERROR_MESSAGE))
     }
-    return res(ctx.status(403), ctx.json(GENERIC_ERROR_MESSAGE))
+    return await res(ctx.status(403), ctx.json(GENERIC_ERROR_MESSAGE))
   }),
-  rest.get(`${API_HOST}/batch/detail/:batchId`, (req, res, ctx) => {
+  rest.get(`${API_HOST}/batch/detail/:batchId`, async (req, res, ctx) => {
     if (isCredentialsValidAsAuthenticated(req)) {
       const { batchId } = req.params
       if (batchId === GENERIC_BATCH_RESPONSE.id) {
-        return res(
+        return await res(
           ctx.status(200),
           ctx.set(GENERIC_HEADERS),
           ctx.json(GENERIC_BATCH_RESPONSE)
         )
       }
-      return res(ctx.status(404), ctx.json(NOT_FOUND_ERROR_MESSAGE))
+      return await res(ctx.status(404), ctx.json(NOT_FOUND_ERROR_MESSAGE))
     }
-    return res(ctx.status(403), ctx.json(GENERIC_ERROR_MESSAGE))
+    return await res(ctx.status(403), ctx.json(GENERIC_ERROR_MESSAGE))
   }),
-  rest.get(`${API_HOST}/batch/export/:batchId`, (req, res, ctx) => {
+  rest.get(`${API_HOST}/batch/export/:batchId`, async (req, res, ctx) => {
     if (isCredentialsValidAsAuthenticated(req)) {
       const { batchId } = req.params
       if (batchId === GENERIC_BATCH_RESPONSE.id) {
-        return res(ctx.status(200), ctx.text(GENERIC_BATCH_CSV))
+        return await res(ctx.status(200), ctx.text(GENERIC_BATCH_CSV))
       }
-      return res(ctx.status(404), ctx.json(NOT_FOUND_ERROR_MESSAGE))
+      return await res(ctx.status(404), ctx.json(NOT_FOUND_ERROR_MESSAGE))
     }
-    return res(ctx.status(403), ctx.json(GENERIC_ERROR_MESSAGE))
+    return await res(ctx.status(403), ctx.json(GENERIC_ERROR_MESSAGE))
   }),
-  rest.get(`${API_HOST}/batch/length/`, (req, res, ctx) => {
+  rest.get(`${API_HOST}/batch/length/`, async (req, res, ctx) => {
     if (isCredentialsValidAsAuthenticated(req)) {
-      return res(
+      return await res(
         ctx.status(200),
         ctx.set(GENERIC_HEADERS),
         ctx.json({
@@ -240,11 +240,11 @@ const handlers: RestHandler[] = [
         })
       )
     }
-    return res(ctx.status(403), ctx.json(GENERIC_ERROR_MESSAGE))
+    return await res(ctx.status(403), ctx.json(GENERIC_ERROR_MESSAGE))
   }),
-  rest.get(`${API_HOST}/batch/list`, (req, res, ctx) => {
+  rest.get(`${API_HOST}/batch/list`, async (req, res, ctx) => {
     if (isCredentialsValidAsAuthenticated(req)) {
-      return res(
+      return await res(
         ctx.status(200),
         ctx.set(GENERIC_HEADERS),
         ctx.json([
@@ -254,77 +254,80 @@ const handlers: RestHandler[] = [
         ])
       )
     }
-    return res(ctx.status(403), ctx.json(GENERIC_ERROR_MESSAGE))
+    return await res(ctx.status(403), ctx.json(GENERIC_ERROR_MESSAGE))
   }),
-  rest.post(`${API_HOST}/batch/start-tagging/:batchId`, (req, res, ctx) => {
+  rest.post(
+    `${API_HOST}/batch/start-tagging/:batchId`,
+    async (req, res, ctx) => {
+      if (isCredentialsValidAsAuthenticated(req)) {
+        const { batchId } = req.params
+        if (batchId === GENERIC_BATCH_RESPONSE.id) {
+          return await res(
+            ctx.status(200),
+            ctx.set(GENERIC_HEADERS),
+            ctx.json(GENERIC_BATCH_RESPONSE)
+          )
+        }
+        return await res(ctx.status(404), ctx.json(NOT_FOUND_ERROR_MESSAGE))
+      }
+      return await res(ctx.status(403), ctx.json(GENERIC_ERROR_MESSAGE))
+    }
+  ),
+  rest.post(`${API_HOST}/batch/update/:batchId`, async (req, res, ctx) => {
     if (isCredentialsValidAsAuthenticated(req)) {
       const { batchId } = req.params
       if (batchId === GENERIC_BATCH_RESPONSE.id) {
-        return res(
+        return await res(
           ctx.status(200),
           ctx.set(GENERIC_HEADERS),
           ctx.json(GENERIC_BATCH_RESPONSE)
         )
       }
-      return res(ctx.status(404), ctx.json(NOT_FOUND_ERROR_MESSAGE))
+      return await res(ctx.status(404), ctx.json(NOT_FOUND_ERROR_MESSAGE))
     }
-    return res(ctx.status(403), ctx.json(GENERIC_ERROR_MESSAGE))
-  }),
-  rest.post(`${API_HOST}/batch/update/:batchId`, (req, res, ctx) => {
-    if (isCredentialsValidAsAuthenticated(req)) {
-      const { batchId } = req.params
-      if (batchId === GENERIC_BATCH_RESPONSE.id) {
-        return res(
-          ctx.status(200),
-          ctx.set(GENERIC_HEADERS),
-          ctx.json(GENERIC_BATCH_RESPONSE)
-        )
-      }
-      return res(ctx.status(404), ctx.json(NOT_FOUND_ERROR_MESSAGE))
-    }
-    return res(ctx.status(403), ctx.json(GENERIC_ERROR_MESSAGE))
+    return await res(ctx.status(403), ctx.json(GENERIC_ERROR_MESSAGE))
   }),
 
   // health
-  rest.get(`${API_HOST}/health/`, (req, res, ctx) => {
-    return res(
+  rest.get(`${API_HOST}/health/`, async (req, res, ctx) => {
+    return await res(
       ctx.status(200),
       ctx.json(['Nothing to see here. Move it along.'])
     )
   }),
 
   // track
-  rest.delete(`${API_HOST}/track/delete/:trackId`, (req, res, ctx) => {
+  rest.delete(`${API_HOST}/track/delete/:trackId`, async (req, res, ctx) => {
     if (isCredentialsValidAsAuthenticated(req)) {
       const { trackId } = req.params
       if (trackId === GENERIC_TRACK_RESPONSE.id) {
-        return res(
+        return await res(
           ctx.status(200),
           ctx.set(GENERIC_HEADERS),
           ctx.json(GENERIC_TRACK_RESPONSE)
         )
       }
-      return res(ctx.status(404), ctx.json(NOT_FOUND_ERROR_MESSAGE))
+      return await res(ctx.status(404), ctx.json(NOT_FOUND_ERROR_MESSAGE))
     }
-    return res(ctx.status(403), ctx.json(GENERIC_ERROR_MESSAGE))
+    return await res(ctx.status(403), ctx.json(GENERIC_ERROR_MESSAGE))
   }),
-  rest.get(`${API_HOST}/track/detail/:trackId`, (req, res, ctx) => {
+  rest.get(`${API_HOST}/track/detail/:trackId`, async (req, res, ctx) => {
     if (isCredentialsValidAsAuthenticated(req)) {
       const { trackId } = req.params
       if (trackId === GENERIC_TRACK_RESPONSE.id) {
-        return res(
+        return await res(
           ctx.status(200),
           ctx.set(GENERIC_HEADERS),
           ctx.json(GENERIC_TRACK_RESPONSE)
         )
       }
-      return res(ctx.status(404), ctx.json(NOT_FOUND_ERROR_MESSAGE))
+      return await res(ctx.status(404), ctx.json(NOT_FOUND_ERROR_MESSAGE))
     }
-    return res(ctx.status(403), ctx.json(GENERIC_ERROR_MESSAGE))
+    return await res(ctx.status(403), ctx.json(GENERIC_ERROR_MESSAGE))
   }),
-  rest.get(`${API_HOST}/track/length/`, (req, res, ctx) => {
+  rest.get(`${API_HOST}/track/length/`, async (req, res, ctx) => {
     if (isCredentialsValidAsAuthenticated(req)) {
-      return res(
+      return await res(
         ctx.status(200),
         ctx.set(GENERIC_HEADERS),
         ctx.json({
@@ -332,11 +335,11 @@ const handlers: RestHandler[] = [
         })
       )
     }
-    return res(ctx.status(403), ctx.json(GENERIC_ERROR_MESSAGE))
+    return await res(ctx.status(403), ctx.json(GENERIC_ERROR_MESSAGE))
   }),
-  rest.get(`${API_HOST}/track/list/`, (req, res, ctx) => {
+  rest.get(`${API_HOST}/track/list/`, async (req, res, ctx) => {
     if (isCredentialsValidAsAuthenticated(req)) {
-      return res(
+      return await res(
         ctx.status(200),
         ctx.set(GENERIC_HEADERS),
         ctx.json([
@@ -346,7 +349,7 @@ const handlers: RestHandler[] = [
         ])
       )
     }
-    return res(ctx.status(403), ctx.json(GENERIC_ERROR_MESSAGE))
+    return await res(ctx.status(403), ctx.json(GENERIC_ERROR_MESSAGE))
   }),
   rest.post(`${API_HOST}/track/add-tag/:trackId`, async (req, res, ctx) => {
     if (isCredentialsValidAsAuthenticated(req)) {
