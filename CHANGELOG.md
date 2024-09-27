@@ -1,5 +1,11 @@
 # @aims-api/aims-tagging-node
 
+## 0.0.7
+
+### Patch Changes
+
+- 5337fe8: node version upgrade
+
 ## 0.0.6
 
 ### Patch Changes
