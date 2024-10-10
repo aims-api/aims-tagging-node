@@ -36,14 +36,15 @@ enum Categories {
   vocals = 'vocals',
   decades = 'decades',
   instruments = 'instruments',
-  tempo = 'tempo'
+  tempo = 'tempo',
 }
 
 type Tags = {
   bpm: number | null
 } & Partial<{
   [key in Categories]: string[]
-}> & Partial<{
+}> &
+Partial<{
   [customName: string]: string[]
 }>
 
@@ -107,14 +108,15 @@ type FeatureFlags = Partial<{
 }>
 
 interface SubscriptionStatus {
-  trialExpiresAt: DateTime | null
+  features: FeatureFlags | null
+  predefinedFilter: Filter | null
+  previousSubscriptionPaymentAt: DateTime | null
   stripeCustomerId: string | null
-  stripeSubscriptionId: string | null
   stripeProductId: string | null
+  stripeSubscriptionId: string | null
   subscriptionCreditsPerMonth: number | null
   subscriptionStatus: 'active' | 'suspended' | null
-  previousSubscriptionPaymentAt: DateTime | null
-  features: FeatureFlags | null
+  trialExpiresAt: DateTime | null
 }
 
 interface Mapping {
@@ -123,10 +125,12 @@ interface Mapping {
     mode: string
     enabled: boolean
     source: string[] | string
-    destination?: Array<{
+    destination?:
+    | Array<{
       category: string
       title: string
-    }> | {
+    }>
+    | {
       category: string
       title: string
     }

@@ -1,6 +1,6 @@
 import { AxiosInstance } from 'axios'
-import { DateTime, SubscriptionStatus } from '../../types/index.js'
 import { UserCredentials } from '../../client/index.js'
+import { DateTime, SubscriptionStatus } from '../../types/index.js'
 
 type AuthenticateEndpoint = (
   request: AuthenticateRequest,
@@ -31,9 +31,9 @@ export interface AuthenticateResponse
   extends MonthlyRequestLimits,
   SubscriptionStatus {
   id: string
-  token: ApiUserToken
-  scope: ApiUserScope
   lastLoginAt: DateTime | null
+  scope: ApiUserScope
+  token: ApiUserToken
 }
 
 const authenticate =
@@ -59,4 +59,4 @@ const authenticate =
       return responseData
     }
 
-export { AuthenticateEndpoint, ApiUserToken, authenticate }
+export { ApiUserToken, authenticate, AuthenticateEndpoint }
