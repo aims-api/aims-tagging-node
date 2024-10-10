@@ -1,5 +1,11 @@
 # @aims-api/aims-tagging-node
 
+## 0.0.8
+
+### Patch Changes
+
+- ee76562: predefinedFilter prop
+
 ## 0.0.7
 
 ### Patch Changes
