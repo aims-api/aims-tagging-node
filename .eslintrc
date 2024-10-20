@@ -16,8 +16,7 @@
   "plugins": ["@typescript-eslint/eslint-plugin"],
   "extends": [
     "plugin:@typescript-eslint/recommended",
-    "prettier",
-    "standard-with-typescript"
+    "prettier"
   ],
   "rules": {
     "@typescript-eslint/no-var-requires": [
