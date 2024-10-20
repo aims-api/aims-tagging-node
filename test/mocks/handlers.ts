@@ -24,15 +24,15 @@ const GENERIC_ERROR_MESSAGE = {
 //   message: "The requested item doesn't exist!",
 //   errors: [],
 // }
-// const INVALID_DATA_ERROR_MESSAGE = {
-//   message: 'Item is not valid!',
-//   errors: [
-//     {
-//       property: 'name',
-//       message: 'This value should not be blank.',
-//     },
-//   ],
-// }
+const INVALID_DATA_ERROR_MESSAGE = {
+  message: 'Item is not valid!',
+  errors: [
+    {
+      property: 'name',
+      message: 'This value should not be blank.',
+    },
+  ],
+}
 const GENERIC_HEADERS = {
   'x-remaining-requests': '99',
 }
@@ -183,25 +183,26 @@ const handlers: HttpHandler[] = [
           headers: GENERIC_HEADERS,
         })
       }
-      return HttpResponse.json(GENERIC_ERROR_MESSAGE, {
-        status: 403,
-      })
+      return HttpResponse.json(GENERIC_ERROR_MESSAGE, { status: 403 })
     }
   }),
-  // http.post(`${API_HOST}/batch/create/`, async (req, res, ctx) => {
-  //   if (isCredentialsValidAsAuthenticated(req)) {
-  //     const name = (req.body as Record<string, string>)['fields[name]']
-  //     if (typeof name !== 'undefined') {
-  //       return await res(
-  //         ctx.status(200),
-  //         ctx.set(GENERIC_HEADERS),
-  //         ctx.json({ ...GENERIC_BATCH_RESPONSE, name }),
-  //       )
-  //     }
-  //     return await res(ctx.status(400), ctx.json(INVALID_DATA_ERROR_MESSAGE))
-  //   }
-  //   return await res(ctx.status(403), ctx.json(GENERIC_ERROR_MESSAGE))
-  // }),
+  http.post(`${API_HOST}/batch/create/`, async ({ request }) => {
+    if (isCredentialsValidAsAuthenticated(request)) {
+      const data = await request.formData()
+      const name = data.get('fields[name]')
+      if (typeof name === 'string') {
+        return HttpResponse.json(
+          { ...GENERIC_BATCH_RESPONSE, name },
+          {
+            status: 200,
+            headers: GENERIC_HEADERS,
+          },
+        )
+      }
+      return HttpResponse.json(INVALID_DATA_ERROR_MESSAGE, { status: 400 })
+    }
+    return HttpResponse.json(GENERIC_ERROR_MESSAGE, { status: 403 })
+  }),
   // http.delete(`${API_HOST}/batch/delete/:batchId`, async (req, res, ctx) => {
   //   if (isCredentialsValidAsAuthenticated(req)) {
   //     const { batchId } = req.params
@@ -214,7 +215,7 @@ const handlers: HttpHandler[] = [
   //     }
   //     return await res(ctx.status(404), ctx.json(NOT_FOUND_ERROR_MESSAGE))
   //   }
-  //   return await res(ctx.status(403), ctx.json(GENERIC_ERROR_MESSAGE))
+  //    return HttpResponse.json(GENERIC_ERROR_MESSAGE, {status: 403,})
   // }),
   // http.get(`${API_HOST}/batch/detail/:batchId`, async (req, res, ctx) => {
   //   if (isCredentialsValidAsAuthenticated(req)) {
@@ -228,7 +229,7 @@ const handlers: HttpHandler[] = [
   //     }
   //     return await res(ctx.status(404), ctx.json(NOT_FOUND_ERROR_MESSAGE))
   //   }
-  //   return await res(ctx.status(403), ctx.json(GENERIC_ERROR_MESSAGE))
+  //    return HttpResponse.json(GENERIC_ERROR_MESSAGE, {status: 403,})
   // }),
   // http.get(`${API_HOST}/batch/export/:batchId`, async (req, res, ctx) => {
   //   if (isCredentialsValidAsAuthenticated(req)) {
@@ -238,7 +239,7 @@ const handlers: HttpHandler[] = [
   //     }
   //     return await res(ctx.status(404), ctx.json(NOT_FOUND_ERROR_MESSAGE))
   //   }
-  //   return await res(ctx.status(403), ctx.json(GENERIC_ERROR_MESSAGE))
+  //    return HttpResponse.json(GENERIC_ERROR_MESSAGE, {status: 403,})
   // }),
   // http.get(`${API_HOST}/batch/length/`, async (req, res, ctx) => {
   //   if (isCredentialsValidAsAuthenticated(req)) {
@@ -250,7 +251,7 @@ const handlers: HttpHandler[] = [
   //       }),
   //     )
   //   }
-  //   return await res(ctx.status(403), ctx.json(GENERIC_ERROR_MESSAGE))
+  //    return HttpResponse.json(GENERIC_ERROR_MESSAGE, {status: 403,})
   // }),
   // http.get(`${API_HOST}/batch/list`, async (req, res, ctx) => {
   //   if (isCredentialsValidAsAuthenticated(req)) {
@@ -264,7 +265,7 @@ const handlers: HttpHandler[] = [
   //       ]),
   //     )
   //   }
-  //   return await res(ctx.status(403), ctx.json(GENERIC_ERROR_MESSAGE))
+  //    return HttpResponse.json(GENERIC_ERROR_MESSAGE, {status: 403,})
   // }),
   // http.post(
   //   `${API_HOST}/batch/start-tagging/:batchId`,
@@ -280,7 +281,7 @@ const handlers: HttpHandler[] = [
   //       }
   //       return await res(ctx.status(404), ctx.json(NOT_FOUND_ERROR_MESSAGE))
   //     }
-  //     return await res(ctx.status(403), ctx.json(GENERIC_ERROR_MESSAGE))
+  //      return HttpResponse.json(GENERIC_ERROR_MESSAGE, {status: 403,})
   //   },
   // ),
   // http.post(`${API_HOST}/batch/update/:batchId`, async (req, res, ctx) => {
@@ -295,7 +296,7 @@ const handlers: HttpHandler[] = [
   //     }
   //     return await res(ctx.status(404), ctx.json(NOT_FOUND_ERROR_MESSAGE))
   //   }
-  //   return await res(ctx.status(403), ctx.json(GENERIC_ERROR_MESSAGE))
+  //    return HttpResponse.json(GENERIC_ERROR_MESSAGE, {status: 403,})
   // }),
 
   // // health
@@ -319,7 +320,7 @@ const handlers: HttpHandler[] = [
   //     }
   //     return await res(ctx.status(404), ctx.json(NOT_FOUND_ERROR_MESSAGE))
   //   }
-  //   return await res(ctx.status(403), ctx.json(GENERIC_ERROR_MESSAGE))
+  //    return HttpResponse.json(GENERIC_ERROR_MESSAGE, {status: 403,})
   // }),
   // http.get(`${API_HOST}/track/detail/:trackId`, async (req, res, ctx) => {
   //   if (isCredentialsValidAsAuthenticated(req)) {
@@ -333,7 +334,7 @@ const handlers: HttpHandler[] = [
   //     }
   //     return await res(ctx.status(404), ctx.json(NOT_FOUND_ERROR_MESSAGE))
   //   }
-  //   return await res(ctx.status(403), ctx.json(GENERIC_ERROR_MESSAGE))
+  //    return HttpResponse.json(GENERIC_ERROR_MESSAGE, {status: 403,})
   // }),
   // http.get(`${API_HOST}/track/length/`, async (req, res, ctx) => {
   //   if (isCredentialsValidAsAuthenticated(req)) {
@@ -345,7 +346,7 @@ const handlers: HttpHandler[] = [
   //       }),
   //     )
   //   }
-  //   return await res(ctx.status(403), ctx.json(GENERIC_ERROR_MESSAGE))
+  //    return HttpResponse.json(GENERIC_ERROR_MESSAGE, {status: 403,})
   // }),
   // http.get(`${API_HOST}/track/list/`, async (req, res, ctx) => {
   //   if (isCredentialsValidAsAuthenticated(req)) {
@@ -359,7 +360,7 @@ const handlers: HttpHandler[] = [
   //       ]),
   //     )
   //   }
-  //   return await res(ctx.status(403), ctx.json(GENERIC_ERROR_MESSAGE))
+  //    return HttpResponse.json(GENERIC_ERROR_MESSAGE, {status: 403,})
   // }),
   // http.post(`${API_HOST}/track/add-tag/:trackId`, async (req, res, ctx) => {
   //   if (isCredentialsValidAsAuthenticated(req)) {
@@ -382,11 +383,11 @@ const handlers: HttpHandler[] = [
   //           }),
   //         )
   //       }
-  //       return await res(ctx.status(400), ctx.json(INVALID_DATA_ERROR_MESSAGE))
+  //       return HttpResponse.json(INVALID_DATA_ERROR_MESSAGE, {status: 400,})
   //     }
   //     return await res(ctx.status(404), ctx.json(NOT_FOUND_ERROR_MESSAGE))
   //   }
-  //   return await res(ctx.status(403), ctx.json(GENERIC_ERROR_MESSAGE))
+  //    return HttpResponse.json(GENERIC_ERROR_MESSAGE, {status: 403,})
   // }),
   // http.post(`${API_HOST}/track/remove-tag/:trackId`, async (req, res, ctx) => {
   //   if (isCredentialsValidAsAuthenticated(req)) {
@@ -408,11 +409,11 @@ const handlers: HttpHandler[] = [
   //           }),
   //         )
   //       }
-  //       return await res(ctx.status(400), ctx.json(INVALID_DATA_ERROR_MESSAGE))
+  //       return HttpResponse.json(INVALID_DATA_ERROR_MESSAGE, {status: 400,})
   //     }
   //     return await res(ctx.status(404), ctx.json(NOT_FOUND_ERROR_MESSAGE))
   //   }
-  //   return await res(ctx.status(403), ctx.json(GENERIC_ERROR_MESSAGE))
+  //    return HttpResponse.json(GENERIC_ERROR_MESSAGE, {status: 403,})
   // }),
   // http.post(`${API_HOST}/track/tag/`, async (req, res, ctx) => {
   //   if (isCredentialsValidAsAuthenticated(req)) {
@@ -426,7 +427,7 @@ const handlers: HttpHandler[] = [
   //       )
   //     }
   //   }
-  //   return await res(ctx.status(403), ctx.json(GENERIC_ERROR_MESSAGE))
+  //    return HttpResponse.json(GENERIC_ERROR_MESSAGE, {status: 403,})
   // }),
 ]
 
