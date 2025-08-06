@@ -1,5 +1,11 @@
 # @aims-api/aims-tagging-node
 
+## 0.0.9
+
+### Patch Changes
+
+- b587e96: registerConfirm type extended
+
 ## 0.0.8
 
 ### Patch Changes
