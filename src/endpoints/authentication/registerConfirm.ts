@@ -9,7 +9,9 @@ interface RegisterConfirmRequest {
 }
 
 interface RegisterConfirmResponse {
+  login: string
   status: string
+  user_id: string
 }
 
 const registerConfirm = (
