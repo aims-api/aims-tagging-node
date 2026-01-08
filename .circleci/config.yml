@@ -13,21 +13,21 @@ jobs:
           command: sudo apt update
       - restore_cache:
           keys:
-            - v1-dependencies-{{ checksum "yarn.lock" }}
+            - v1-dependencies-{{ checksum "pnpm-lock.yaml" }}
             # fallback to using the latest cache if no exact match is found
             - v1-dependencies-
 
-      - run: yarn install
-      - run: yarn test
-      - run: yarn test-integration
-      - run: yarn import-sort '*/**/*.{ts,tsx,js,jsx}'
-      - run: yarn format
-      - run: yarn ci-lint
+      - run: pnpm i
+      - run: pnpm test
+      - run: pnpm test-integration
+      - run: pnpm import-sort '*/**/*.{ts,tsx,js,jsx}'
+      - run: pnpm format
+      - run: pnpm ci-lint
 
       - save_cache:
           paths:
             - node_modules
-          key: v1-dependencies-{{ checksum "yarn.lock" }}
+          key: v1-dependencies-{{ checksum "pnpm-lock.yaml" }}
 
 workflows:
   version: 2
