@@ -119,16 +119,22 @@ const isCredentialsValidAsAuthenticated = (request: Request): boolean => {
 
 const handlers: HttpHandler[] = [
   // api user
-  http.get(`${API_HOST}/api-user/remaining-monthly-requests/`, ({ request }) => {
-    if (isCredentialsValidAsAuthenticated(request)) {
-      return HttpResponse.json(GENERIC_REMAINING_MONTHLY_REQUESTS_RESPONSE)
+  http.get(
+    `${API_HOST}/api-user/remaining-monthly-requests/`,
+    ({ request }) => {
+      if (isCredentialsValidAsAuthenticated(request)) {
+        return HttpResponse.json(GENERIC_REMAINING_MONTHLY_REQUESTS_RESPONSE)
+      }
+      return HttpResponse.json(GENERIC_ERROR_MESSAGE, { status: 403 })
     }
-    return HttpResponse.json(GENERIC_ERROR_MESSAGE, { status: 403 })
-  }),
+  ),
 
   // authentication
   http.post(`${API_HOST}/authenticate/`, ({ request }) => {
-    if (isCredentialsValidAsAnonymous(request) && isUserCredentialsValid(request)) {
+    if (
+      isCredentialsValidAsAnonymous(request) &&
+      isUserCredentialsValid(request)
+    ) {
       return HttpResponse.json({
         token: {
           token: 'abcd',
@@ -148,7 +154,9 @@ const handlers: HttpHandler[] = [
       const data = await request.arrayBuffer()
       // FIXME: msw seems to be unable to parse FormData, just expect file of certain size for now
       if (data.byteLength > 1000) {
-        return HttpResponse.json(GENERIC_TRACK_RESPONSE, { headers: GENERIC_HEADERS })
+        return HttpResponse.json(GENERIC_TRACK_RESPONSE, {
+          headers: GENERIC_HEADERS
+        })
       }
     }
     return HttpResponse.json(GENERIC_ERROR_MESSAGE, { status: 403 })
@@ -158,7 +166,10 @@ const handlers: HttpHandler[] = [
       const formData = await request.formData()
       const name = formData.get('fields[name]')
       if (name !== null) {
-        return HttpResponse.json({ ...GENERIC_BATCH_RESPONSE, name }, { headers: GENERIC_HEADERS })
+        return HttpResponse.json(
+          { ...GENERIC_BATCH_RESPONSE, name },
+          { headers: GENERIC_HEADERS }
+        )
       }
       return HttpResponse.json(INVALID_DATA_ERROR_MESSAGE, { status: 400 })
     }
@@ -168,7 +179,9 @@ const handlers: HttpHandler[] = [
     if (isCredentialsValidAsAuthenticated(request)) {
       const { batchId } = params
       if (batchId === GENERIC_BATCH_RESPONSE.id) {
-        return HttpResponse.json(GENERIC_BATCH_RESPONSE, { headers: GENERIC_HEADERS })
+        return HttpResponse.json(GENERIC_BATCH_RESPONSE, {
+          headers: GENERIC_HEADERS
+        })
       }
       return HttpResponse.json(NOT_FOUND_ERROR_MESSAGE, { status: 404 })
     }
@@ -178,7 +191,9 @@ const handlers: HttpHandler[] = [
     if (isCredentialsValidAsAuthenticated(request)) {
       const { batchId } = params
       if (batchId === GENERIC_BATCH_RESPONSE.id) {
-        return HttpResponse.json(GENERIC_BATCH_RESPONSE, { headers: GENERIC_HEADERS })
+        return HttpResponse.json(GENERIC_BATCH_RESPONSE, {
+          headers: GENERIC_HEADERS
+        })
       }
       return HttpResponse.json(NOT_FOUND_ERROR_MESSAGE, { status: 404 })
     }
@@ -203,27 +218,38 @@ const handlers: HttpHandler[] = [
   http.get(`${API_HOST}/batch/list`, ({ request }) => {
     if (isCredentialsValidAsAuthenticated(request)) {
       return HttpResponse.json(
-        [GENERIC_BATCH_RESPONSE, GENERIC_BATCH_RESPONSE, GENERIC_BATCH_RESPONSE],
+        [
+          GENERIC_BATCH_RESPONSE,
+          GENERIC_BATCH_RESPONSE,
+          GENERIC_BATCH_RESPONSE
+        ],
         { headers: GENERIC_HEADERS }
       )
     }
     return HttpResponse.json(GENERIC_ERROR_MESSAGE, { status: 403 })
   }),
-  http.post(`${API_HOST}/batch/start-tagging/:batchId`, ({ request, params }) => {
-    if (isCredentialsValidAsAuthenticated(request)) {
-      const { batchId } = params
-      if (batchId === GENERIC_BATCH_RESPONSE.id) {
-        return HttpResponse.json(GENERIC_BATCH_RESPONSE, { headers: GENERIC_HEADERS })
+  http.post(
+    `${API_HOST}/batch/start-tagging/:batchId`,
+    ({ request, params }) => {
+      if (isCredentialsValidAsAuthenticated(request)) {
+        const { batchId } = params
+        if (batchId === GENERIC_BATCH_RESPONSE.id) {
+          return HttpResponse.json(GENERIC_BATCH_RESPONSE, {
+            headers: GENERIC_HEADERS
+          })
+        }
+        return HttpResponse.json(NOT_FOUND_ERROR_MESSAGE, { status: 404 })
       }
-      return HttpResponse.json(NOT_FOUND_ERROR_MESSAGE, { status: 404 })
+      return HttpResponse.json(GENERIC_ERROR_MESSAGE, { status: 403 })
     }
-    return HttpResponse.json(GENERIC_ERROR_MESSAGE, { status: 403 })
-  }),
+  ),
   http.post(`${API_HOST}/batch/update/:batchId`, ({ request, params }) => {
     if (isCredentialsValidAsAuthenticated(request)) {
       const { batchId } = params
       if (batchId === GENERIC_BATCH_RESPONSE.id) {
-        return HttpResponse.json(GENERIC_BATCH_RESPONSE, { headers: GENERIC_HEADERS })
+        return HttpResponse.json(GENERIC_BATCH_RESPONSE, {
+          headers: GENERIC_HEADERS
+        })
       }
       return HttpResponse.json(NOT_FOUND_ERROR_MESSAGE, { status: 404 })
     }
@@ -240,7 +266,9 @@ const handlers: HttpHandler[] = [
     if (isCredentialsValidAsAuthenticated(request)) {
       const { trackId } = params
       if (trackId === GENERIC_TRACK_RESPONSE.id) {
-        return HttpResponse.json(GENERIC_TRACK_RESPONSE, { headers: GENERIC_HEADERS })
+        return HttpResponse.json(GENERIC_TRACK_RESPONSE, {
+          headers: GENERIC_HEADERS
+        })
       }
       return HttpResponse.json(NOT_FOUND_ERROR_MESSAGE, { status: 404 })
     }
@@ -250,7 +278,9 @@ const handlers: HttpHandler[] = [
     if (isCredentialsValidAsAuthenticated(request)) {
       const { trackId } = params
       if (trackId === GENERIC_TRACK_RESPONSE.id) {
-        return HttpResponse.json(GENERIC_TRACK_RESPONSE, { headers: GENERIC_HEADERS })
+        return HttpResponse.json(GENERIC_TRACK_RESPONSE, {
+          headers: GENERIC_HEADERS
+        })
       }
       return HttpResponse.json(NOT_FOUND_ERROR_MESSAGE, { status: 404 })
     }
@@ -265,69 +295,87 @@ const handlers: HttpHandler[] = [
   http.get(`${API_HOST}/track/list/`, ({ request }) => {
     if (isCredentialsValidAsAuthenticated(request)) {
       return HttpResponse.json(
-        [GENERIC_TRACK_RESPONSE, GENERIC_TRACK_RESPONSE, GENERIC_TRACK_RESPONSE],
+        [
+          GENERIC_TRACK_RESPONSE,
+          GENERIC_TRACK_RESPONSE,
+          GENERIC_TRACK_RESPONSE
+        ],
         { headers: GENERIC_HEADERS }
       )
     }
     return HttpResponse.json(GENERIC_ERROR_MESSAGE, { status: 403 })
   }),
-  http.post(`${API_HOST}/track/add-tag/:trackId`, async ({ request, params }) => {
-    if (isCredentialsValidAsAuthenticated(request)) {
-      const { trackId } = params
-      if (trackId === GENERIC_TRACK_RESPONSE.id) {
-        const { category, value } = await request.json() as { category: string; value: string }
-        if (typeof category !== 'undefined' && typeof value !== 'undefined') {
-          return HttpResponse.json(
-            {
-              ...GENERIC_TRACK_RESPONSE,
-              tags: {
-                ...GENERIC_TRACK_RESPONSE.tags,
-                [category]: [
-                  ...GENERIC_TRACK_RESPONSE.tags[category as Categories],
-                  value
-                ]
-              }
-            },
-            { headers: GENERIC_HEADERS }
-          )
+  http.post(
+    `${API_HOST}/track/add-tag/:trackId`,
+    async ({ request, params }) => {
+      if (isCredentialsValidAsAuthenticated(request)) {
+        const { trackId } = params
+        if (trackId === GENERIC_TRACK_RESPONSE.id) {
+          const { category, value } = (await request.json()) as {
+            category: string
+            value: string
+          }
+          if (typeof category !== 'undefined' && typeof value !== 'undefined') {
+            return HttpResponse.json(
+              {
+                ...GENERIC_TRACK_RESPONSE,
+                tags: {
+                  ...GENERIC_TRACK_RESPONSE.tags,
+                  [category]: [
+                    ...GENERIC_TRACK_RESPONSE.tags[category as Categories],
+                    value
+                  ]
+                }
+              },
+              { headers: GENERIC_HEADERS }
+            )
+          }
+          return HttpResponse.json(INVALID_DATA_ERROR_MESSAGE, { status: 400 })
         }
-        return HttpResponse.json(INVALID_DATA_ERROR_MESSAGE, { status: 400 })
+        return HttpResponse.json(NOT_FOUND_ERROR_MESSAGE, { status: 404 })
       }
-      return HttpResponse.json(NOT_FOUND_ERROR_MESSAGE, { status: 404 })
+      return HttpResponse.json(GENERIC_ERROR_MESSAGE, { status: 403 })
     }
-    return HttpResponse.json(GENERIC_ERROR_MESSAGE, { status: 403 })
-  }),
-  http.post(`${API_HOST}/track/remove-tag/:trackId`, async ({ request, params }) => {
-    if (isCredentialsValidAsAuthenticated(request)) {
-      const { trackId } = params
-      if (trackId === GENERIC_TRACK_RESPONSE.id) {
-        const { category, value } = await request.json() as { category: string; value: string }
-        if (typeof category !== 'undefined' && typeof value !== 'undefined') {
-          return HttpResponse.json(
-            {
-              ...GENERIC_TRACK_RESPONSE,
-              tags: {
-                ...GENERIC_TRACK_RESPONSE.tags,
-                [category]: GENERIC_TRACK_RESPONSE.tags[category as Categories].filter(
-                  (item) => item !== value
-                )
-              }
-            },
-            { headers: GENERIC_HEADERS }
-          )
+  ),
+  http.post(
+    `${API_HOST}/track/remove-tag/:trackId`,
+    async ({ request, params }) => {
+      if (isCredentialsValidAsAuthenticated(request)) {
+        const { trackId } = params
+        if (trackId === GENERIC_TRACK_RESPONSE.id) {
+          const { category, value } = (await request.json()) as {
+            category: string
+            value: string
+          }
+          if (typeof category !== 'undefined' && typeof value !== 'undefined') {
+            return HttpResponse.json(
+              {
+                ...GENERIC_TRACK_RESPONSE,
+                tags: {
+                  ...GENERIC_TRACK_RESPONSE.tags,
+                  [category]: GENERIC_TRACK_RESPONSE.tags[
+                    category as Categories
+                  ].filter(item => item !== value)
+                }
+              },
+              { headers: GENERIC_HEADERS }
+            )
+          }
+          return HttpResponse.json(INVALID_DATA_ERROR_MESSAGE, { status: 400 })
         }
-        return HttpResponse.json(INVALID_DATA_ERROR_MESSAGE, { status: 400 })
+        return HttpResponse.json(NOT_FOUND_ERROR_MESSAGE, { status: 404 })
       }
-      return HttpResponse.json(NOT_FOUND_ERROR_MESSAGE, { status: 404 })
+      return HttpResponse.json(GENERIC_ERROR_MESSAGE, { status: 403 })
     }
-    return HttpResponse.json(GENERIC_ERROR_MESSAGE, { status: 403 })
-  }),
+  ),
   http.post(`${API_HOST}/track/tag/`, async ({ request }) => {
     if (isCredentialsValidAsAuthenticated(request)) {
       const data = await request.arrayBuffer()
       // FIXME: msw seems to be unable to parse FormData, just expect file of certain size for now
       if (data.byteLength > 1000) {
-        return HttpResponse.json(GENERIC_TRACK_RESPONSE, { headers: GENERIC_HEADERS })
+        return HttpResponse.json(GENERIC_TRACK_RESPONSE, {
+          headers: GENERIC_HEADERS
+        })
       }
     }
     return HttpResponse.json(GENERIC_ERROR_MESSAGE, { status: 403 })

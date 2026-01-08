@@ -26,8 +26,7 @@ describe('apiUser endpoints', () => {
   })
 
   test('remainingMonthlyRequests', async () => {
-    const response =
-      await authenticatedTestClient.endpoints.apiUser.remainingMonthlyRequests()
+    const response = await authenticatedTestClient.endpoints.apiUser.remainingMonthlyRequests()
 
     expect(response).toEqual({
       user: {
