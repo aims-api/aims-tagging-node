@@ -1,5 +1,10 @@
-const config = require('./jest.config')
-config.default.testRegex = '/test/live_integration/.*\\.test\\.ts$'
-config.default.setupFilesAfterEnv = []
+import baseConfig from './jest.config'
+
+const config = {
+  ...baseConfig,
+  testRegex: '/test/live_integration/.*\\.test\\.ts$',
+  setupFilesAfterEnv: [],
+}
+
 console.log('RUNNING INTEGRATION TESTS')
-module.exports = config
+export default config
