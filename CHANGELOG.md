@@ -1,5 +1,11 @@
 # @aims-api/aims-tagging-node
 
+## 0.0.10
+
+### Patch Changes
+
+- fdf8e77: msw upgraded to ver 2, migrated from yarn to pnpm
+
 ## 0.0.9
 
 ### Patch Changes
