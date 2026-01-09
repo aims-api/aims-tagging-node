@@ -23,13 +23,13 @@ jobs:
           node-version: '22.6'
 
       - name: Install Dependencies
-        run: yarn
+        run: pnpm i
 
       - name: Create Release Pull Request or Publish to npm
         id: changesets
         uses: changesets/action@v1
         with:
-          publish: yarn publish-npm
+          publish: pnpm publish-npm
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
