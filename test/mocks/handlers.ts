@@ -1,10 +1,4 @@
-import {
-  DefaultBodyType,
-  PathParams,
-  RestHandler,
-  RestRequest,
-  rest
-} from 'msw'
+import { http, HttpResponse, HttpHandler } from 'msw'
 import {
   validApiUserToken,
   validClientId,
@@ -87,22 +81,20 @@ const GENERIC_REMAINING_MONTHLY_REQUESTS_RESPONSE = {
 }
 
 const getCredentials = (
-  req: RestRequest<DefaultBodyType, PathParams<string>>
+  request: Request
 ): {
   clientId: string | null
   clientSecret: string | null
   apiUserToken: string | null
 } => {
-  const clientId = req.headers.get('X-Client-Id')
-  const clientSecret = req.headers.get('X-Client-Secret')
-  const apiUserToken = req.headers.get('X-Api-User-Token')
+  const clientId = request.headers.get('X-Client-Id')
+  const clientSecret = request.headers.get('X-Client-Secret')
+  const apiUserToken = request.headers.get('X-Api-User-Token')
   return { clientId, clientSecret, apiUserToken }
 }
 
-const isUserCredentialsValid = (
-  req: RestRequest<DefaultBodyType, PathParams<string>>
-): boolean => {
-  const auth = req.headers.get('Authorization')
+const isUserCredentialsValid = (request: Request): boolean => {
+  const auth = request.headers.get('Authorization')
   if (auth === null) {
     return false
   }
@@ -113,310 +105,280 @@ const isUserCredentialsValid = (
   return userEmail === validUserEmail && userPassword === validUserPassword
 }
 
-const isCredentialsValidAsAnonymous = (
-  req: RestRequest<DefaultBodyType, PathParams<string>>
-): boolean => {
-  const { clientId, clientSecret } = getCredentials(req)
+const isCredentialsValidAsAnonymous = (request: Request): boolean => {
+  const { clientId, clientSecret } = getCredentials(request)
   return clientId === validClientId && clientSecret === validClientSecret
 }
 
-const isCredentialsValidAsAuthenticated = (
-  req: RestRequest<DefaultBodyType, PathParams<string>>
-): boolean => {
-  const { apiUserToken } = getCredentials(req)
+const isCredentialsValidAsAuthenticated = (request: Request): boolean => {
+  const { apiUserToken } = getCredentials(request)
   return (
-    isCredentialsValidAsAnonymous(req) && apiUserToken === validApiUserToken
+    isCredentialsValidAsAnonymous(request) && apiUserToken === validApiUserToken
   )
 }
 
-const handlers: RestHandler[] = [
+const handlers: HttpHandler[] = [
   // api user
-  rest.get(
+  http.get(
     `${API_HOST}/api-user/remaining-monthly-requests/`,
-    async (req, res, ctx) => {
-      if (isCredentialsValidAsAuthenticated(req)) {
-        return await res(
-          ctx.status(200),
-          ctx.json(GENERIC_REMAINING_MONTHLY_REQUESTS_RESPONSE)
-        )
+    ({ request }) => {
+      if (isCredentialsValidAsAuthenticated(request)) {
+        return HttpResponse.json(GENERIC_REMAINING_MONTHLY_REQUESTS_RESPONSE)
       }
-      return await res(ctx.status(403), ctx.json(GENERIC_ERROR_MESSAGE))
+      return HttpResponse.json(GENERIC_ERROR_MESSAGE, { status: 403 })
     }
   ),
 
   // authentication
-  rest.post(`${API_HOST}/authenticate/`, async (req, res, ctx) => {
-    if (isCredentialsValidAsAnonymous(req) && isUserCredentialsValid(req)) {
-      return await res(
-        ctx.status(200),
-        ctx.json({
-          token: {
-            token: 'abcd',
-            expirationDate: '2022-01-01T12:34:56+01:00'
-          },
-          userScope: {},
-          monthlyRequestLimit: 500,
-          remainingMonthlyRequests: 395
-        })
-      )
+  http.post(`${API_HOST}/authenticate/`, ({ request }) => {
+    if (
+      isCredentialsValidAsAnonymous(request) &&
+      isUserCredentialsValid(request)
+    ) {
+      return HttpResponse.json({
+        token: {
+          token: 'abcd',
+          expirationDate: '2022-01-01T12:34:56+01:00'
+        },
+        userScope: {},
+        monthlyRequestLimit: 500,
+        remainingMonthlyRequests: 395
+      })
     }
-    return await res(ctx.status(403), ctx.json(GENERIC_ERROR_MESSAGE))
+    return HttpResponse.json(GENERIC_ERROR_MESSAGE, { status: 403 })
   }),
 
   // batch
-  rest.post(`${API_HOST}/batch/add-track/:batchId`, async (req, res, ctx) => {
-    if (isCredentialsValidAsAuthenticated(req)) {
-      const data = await req.arrayBuffer()
+  http.post(`${API_HOST}/batch/add-track/:batchId`, async ({ request }) => {
+    if (isCredentialsValidAsAuthenticated(request)) {
+      const data = await request.arrayBuffer()
       // FIXME: msw seems to be unable to parse FormData, just expect file of certain size for now
       if (data.byteLength > 1000) {
-        return await res(
-          ctx.status(200),
-          ctx.set(GENERIC_HEADERS),
-          ctx.json(GENERIC_TRACK_RESPONSE)
-        )
-      }
-    }
-    return await res(ctx.status(403), ctx.json(GENERIC_ERROR_MESSAGE))
-  }),
-  rest.post(`${API_HOST}/batch/create/`, async (req, res, ctx) => {
-    if (isCredentialsValidAsAuthenticated(req)) {
-      const name = (req.body as Record<string, string>)['fields[name]']
-      if (typeof name !== 'undefined') {
-        return await res(
-          ctx.status(200),
-          ctx.set(GENERIC_HEADERS),
-          ctx.json({ ...GENERIC_BATCH_RESPONSE, name })
-        )
-      }
-      return await res(ctx.status(400), ctx.json(INVALID_DATA_ERROR_MESSAGE))
-    }
-    return await res(ctx.status(403), ctx.json(GENERIC_ERROR_MESSAGE))
-  }),
-  rest.delete(`${API_HOST}/batch/delete/:batchId`, async (req, res, ctx) => {
-    if (isCredentialsValidAsAuthenticated(req)) {
-      const { batchId } = req.params
-      if (batchId === GENERIC_BATCH_RESPONSE.id) {
-        return await res(
-          ctx.status(200),
-          ctx.set(GENERIC_HEADERS),
-          ctx.json(GENERIC_BATCH_RESPONSE)
-        )
-      }
-      return await res(ctx.status(404), ctx.json(NOT_FOUND_ERROR_MESSAGE))
-    }
-    return await res(ctx.status(403), ctx.json(GENERIC_ERROR_MESSAGE))
-  }),
-  rest.get(`${API_HOST}/batch/detail/:batchId`, async (req, res, ctx) => {
-    if (isCredentialsValidAsAuthenticated(req)) {
-      const { batchId } = req.params
-      if (batchId === GENERIC_BATCH_RESPONSE.id) {
-        return await res(
-          ctx.status(200),
-          ctx.set(GENERIC_HEADERS),
-          ctx.json(GENERIC_BATCH_RESPONSE)
-        )
-      }
-      return await res(ctx.status(404), ctx.json(NOT_FOUND_ERROR_MESSAGE))
-    }
-    return await res(ctx.status(403), ctx.json(GENERIC_ERROR_MESSAGE))
-  }),
-  rest.get(`${API_HOST}/batch/export/:batchId`, async (req, res, ctx) => {
-    if (isCredentialsValidAsAuthenticated(req)) {
-      const { batchId } = req.params
-      if (batchId === GENERIC_BATCH_RESPONSE.id) {
-        return await res(ctx.status(200), ctx.text(GENERIC_BATCH_CSV))
-      }
-      return await res(ctx.status(404), ctx.json(NOT_FOUND_ERROR_MESSAGE))
-    }
-    return await res(ctx.status(403), ctx.json(GENERIC_ERROR_MESSAGE))
-  }),
-  rest.get(`${API_HOST}/batch/length/`, async (req, res, ctx) => {
-    if (isCredentialsValidAsAuthenticated(req)) {
-      return await res(
-        ctx.status(200),
-        ctx.set(GENERIC_HEADERS),
-        ctx.json({
-          length: 10
+        return HttpResponse.json(GENERIC_TRACK_RESPONSE, {
+          headers: GENERIC_HEADERS
         })
-      )
+      }
     }
-    return await res(ctx.status(403), ctx.json(GENERIC_ERROR_MESSAGE))
+    return HttpResponse.json(GENERIC_ERROR_MESSAGE, { status: 403 })
   }),
-  rest.get(`${API_HOST}/batch/list`, async (req, res, ctx) => {
-    if (isCredentialsValidAsAuthenticated(req)) {
-      return await res(
-        ctx.status(200),
-        ctx.set(GENERIC_HEADERS),
-        ctx.json([
+  http.post(`${API_HOST}/batch/create/`, async ({ request }) => {
+    if (isCredentialsValidAsAuthenticated(request)) {
+      const formData = await request.formData()
+      const name = formData.get('fields[name]')
+      if (name !== null) {
+        return HttpResponse.json(
+          { ...GENERIC_BATCH_RESPONSE, name },
+          { headers: GENERIC_HEADERS }
+        )
+      }
+      return HttpResponse.json(INVALID_DATA_ERROR_MESSAGE, { status: 400 })
+    }
+    return HttpResponse.json(GENERIC_ERROR_MESSAGE, { status: 403 })
+  }),
+  http.delete(`${API_HOST}/batch/delete/:batchId`, ({ request, params }) => {
+    if (isCredentialsValidAsAuthenticated(request)) {
+      const { batchId } = params
+      if (batchId === GENERIC_BATCH_RESPONSE.id) {
+        return HttpResponse.json(GENERIC_BATCH_RESPONSE, {
+          headers: GENERIC_HEADERS
+        })
+      }
+      return HttpResponse.json(NOT_FOUND_ERROR_MESSAGE, { status: 404 })
+    }
+    return HttpResponse.json(GENERIC_ERROR_MESSAGE, { status: 403 })
+  }),
+  http.get(`${API_HOST}/batch/detail/:batchId`, ({ request, params }) => {
+    if (isCredentialsValidAsAuthenticated(request)) {
+      const { batchId } = params
+      if (batchId === GENERIC_BATCH_RESPONSE.id) {
+        return HttpResponse.json(GENERIC_BATCH_RESPONSE, {
+          headers: GENERIC_HEADERS
+        })
+      }
+      return HttpResponse.json(NOT_FOUND_ERROR_MESSAGE, { status: 404 })
+    }
+    return HttpResponse.json(GENERIC_ERROR_MESSAGE, { status: 403 })
+  }),
+  http.get(`${API_HOST}/batch/export/:batchId`, ({ request, params }) => {
+    if (isCredentialsValidAsAuthenticated(request)) {
+      const { batchId } = params
+      if (batchId === GENERIC_BATCH_RESPONSE.id) {
+        return HttpResponse.text(GENERIC_BATCH_CSV)
+      }
+      return HttpResponse.json(NOT_FOUND_ERROR_MESSAGE, { status: 404 })
+    }
+    return HttpResponse.json(GENERIC_ERROR_MESSAGE, { status: 403 })
+  }),
+  http.get(`${API_HOST}/batch/length/`, ({ request }) => {
+    if (isCredentialsValidAsAuthenticated(request)) {
+      return HttpResponse.json({ length: 10 }, { headers: GENERIC_HEADERS })
+    }
+    return HttpResponse.json(GENERIC_ERROR_MESSAGE, { status: 403 })
+  }),
+  http.get(`${API_HOST}/batch/list`, ({ request }) => {
+    if (isCredentialsValidAsAuthenticated(request)) {
+      return HttpResponse.json(
+        [
           GENERIC_BATCH_RESPONSE,
           GENERIC_BATCH_RESPONSE,
           GENERIC_BATCH_RESPONSE
-        ])
+        ],
+        { headers: GENERIC_HEADERS }
       )
     }
-    return await res(ctx.status(403), ctx.json(GENERIC_ERROR_MESSAGE))
+    return HttpResponse.json(GENERIC_ERROR_MESSAGE, { status: 403 })
   }),
-  rest.post(
+  http.post(
     `${API_HOST}/batch/start-tagging/:batchId`,
-    async (req, res, ctx) => {
-      if (isCredentialsValidAsAuthenticated(req)) {
-        const { batchId } = req.params
+    ({ request, params }) => {
+      if (isCredentialsValidAsAuthenticated(request)) {
+        const { batchId } = params
         if (batchId === GENERIC_BATCH_RESPONSE.id) {
-          return await res(
-            ctx.status(200),
-            ctx.set(GENERIC_HEADERS),
-            ctx.json(GENERIC_BATCH_RESPONSE)
-          )
+          return HttpResponse.json(GENERIC_BATCH_RESPONSE, {
+            headers: GENERIC_HEADERS
+          })
         }
-        return await res(ctx.status(404), ctx.json(NOT_FOUND_ERROR_MESSAGE))
+        return HttpResponse.json(NOT_FOUND_ERROR_MESSAGE, { status: 404 })
       }
-      return await res(ctx.status(403), ctx.json(GENERIC_ERROR_MESSAGE))
+      return HttpResponse.json(GENERIC_ERROR_MESSAGE, { status: 403 })
     }
   ),
-  rest.post(`${API_HOST}/batch/update/:batchId`, async (req, res, ctx) => {
-    if (isCredentialsValidAsAuthenticated(req)) {
-      const { batchId } = req.params
+  http.post(`${API_HOST}/batch/update/:batchId`, ({ request, params }) => {
+    if (isCredentialsValidAsAuthenticated(request)) {
+      const { batchId } = params
       if (batchId === GENERIC_BATCH_RESPONSE.id) {
-        return await res(
-          ctx.status(200),
-          ctx.set(GENERIC_HEADERS),
-          ctx.json(GENERIC_BATCH_RESPONSE)
-        )
+        return HttpResponse.json(GENERIC_BATCH_RESPONSE, {
+          headers: GENERIC_HEADERS
+        })
       }
-      return await res(ctx.status(404), ctx.json(NOT_FOUND_ERROR_MESSAGE))
+      return HttpResponse.json(NOT_FOUND_ERROR_MESSAGE, { status: 404 })
     }
-    return await res(ctx.status(403), ctx.json(GENERIC_ERROR_MESSAGE))
+    return HttpResponse.json(GENERIC_ERROR_MESSAGE, { status: 403 })
   }),
 
   // health
-  rest.get(`${API_HOST}/health/`, async (req, res, ctx) => {
-    return await res(
-      ctx.status(200),
-      ctx.json(['Nothing to see here. Move it along.'])
-    )
+  http.get(`${API_HOST}/health/`, () => {
+    return HttpResponse.json(['Nothing to see here. Move it along.'])
   }),
 
   // track
-  rest.delete(`${API_HOST}/track/delete/:trackId`, async (req, res, ctx) => {
-    if (isCredentialsValidAsAuthenticated(req)) {
-      const { trackId } = req.params
+  http.delete(`${API_HOST}/track/delete/:trackId`, ({ request, params }) => {
+    if (isCredentialsValidAsAuthenticated(request)) {
+      const { trackId } = params
       if (trackId === GENERIC_TRACK_RESPONSE.id) {
-        return await res(
-          ctx.status(200),
-          ctx.set(GENERIC_HEADERS),
-          ctx.json(GENERIC_TRACK_RESPONSE)
-        )
-      }
-      return await res(ctx.status(404), ctx.json(NOT_FOUND_ERROR_MESSAGE))
-    }
-    return await res(ctx.status(403), ctx.json(GENERIC_ERROR_MESSAGE))
-  }),
-  rest.get(`${API_HOST}/track/detail/:trackId`, async (req, res, ctx) => {
-    if (isCredentialsValidAsAuthenticated(req)) {
-      const { trackId } = req.params
-      if (trackId === GENERIC_TRACK_RESPONSE.id) {
-        return await res(
-          ctx.status(200),
-          ctx.set(GENERIC_HEADERS),
-          ctx.json(GENERIC_TRACK_RESPONSE)
-        )
-      }
-      return await res(ctx.status(404), ctx.json(NOT_FOUND_ERROR_MESSAGE))
-    }
-    return await res(ctx.status(403), ctx.json(GENERIC_ERROR_MESSAGE))
-  }),
-  rest.get(`${API_HOST}/track/length/`, async (req, res, ctx) => {
-    if (isCredentialsValidAsAuthenticated(req)) {
-      return await res(
-        ctx.status(200),
-        ctx.set(GENERIC_HEADERS),
-        ctx.json({
-          length: 10
+        return HttpResponse.json(GENERIC_TRACK_RESPONSE, {
+          headers: GENERIC_HEADERS
         })
-      )
+      }
+      return HttpResponse.json(NOT_FOUND_ERROR_MESSAGE, { status: 404 })
     }
-    return await res(ctx.status(403), ctx.json(GENERIC_ERROR_MESSAGE))
+    return HttpResponse.json(GENERIC_ERROR_MESSAGE, { status: 403 })
   }),
-  rest.get(`${API_HOST}/track/list/`, async (req, res, ctx) => {
-    if (isCredentialsValidAsAuthenticated(req)) {
-      return await res(
-        ctx.status(200),
-        ctx.set(GENERIC_HEADERS),
-        ctx.json([
+  http.get(`${API_HOST}/track/detail/:trackId`, ({ request, params }) => {
+    if (isCredentialsValidAsAuthenticated(request)) {
+      const { trackId } = params
+      if (trackId === GENERIC_TRACK_RESPONSE.id) {
+        return HttpResponse.json(GENERIC_TRACK_RESPONSE, {
+          headers: GENERIC_HEADERS
+        })
+      }
+      return HttpResponse.json(NOT_FOUND_ERROR_MESSAGE, { status: 404 })
+    }
+    return HttpResponse.json(GENERIC_ERROR_MESSAGE, { status: 403 })
+  }),
+  http.get(`${API_HOST}/track/length/`, ({ request }) => {
+    if (isCredentialsValidAsAuthenticated(request)) {
+      return HttpResponse.json({ length: 10 }, { headers: GENERIC_HEADERS })
+    }
+    return HttpResponse.json(GENERIC_ERROR_MESSAGE, { status: 403 })
+  }),
+  http.get(`${API_HOST}/track/list/`, ({ request }) => {
+    if (isCredentialsValidAsAuthenticated(request)) {
+      return HttpResponse.json(
+        [
           GENERIC_TRACK_RESPONSE,
           GENERIC_TRACK_RESPONSE,
           GENERIC_TRACK_RESPONSE
-        ])
+        ],
+        { headers: GENERIC_HEADERS }
       )
     }
-    return await res(ctx.status(403), ctx.json(GENERIC_ERROR_MESSAGE))
+    return HttpResponse.json(GENERIC_ERROR_MESSAGE, { status: 403 })
   }),
-  rest.post(`${API_HOST}/track/add-tag/:trackId`, async (req, res, ctx) => {
-    if (isCredentialsValidAsAuthenticated(req)) {
-      const { trackId } = req.params
-      if (trackId === GENERIC_TRACK_RESPONSE.id) {
-        const { category, value } = await req.json()
-        if (typeof category !== 'undefined' && typeof value !== 'undefined') {
-          return await res(
-            ctx.status(200),
-            ctx.set(GENERIC_HEADERS),
-            ctx.json({
-              ...GENERIC_TRACK_RESPONSE,
-              tags: {
-                ...GENERIC_TRACK_RESPONSE.tags,
-                [category]: [
-                  ...GENERIC_TRACK_RESPONSE.tags[category as Categories],
-                  value
-                ]
-              }
-            })
-          )
+  http.post(
+    `${API_HOST}/track/add-tag/:trackId`,
+    async ({ request, params }) => {
+      if (isCredentialsValidAsAuthenticated(request)) {
+        const { trackId } = params
+        if (trackId === GENERIC_TRACK_RESPONSE.id) {
+          const { category, value } = (await request.json()) as {
+            category: string
+            value: string
+          }
+          if (typeof category !== 'undefined' && typeof value !== 'undefined') {
+            return HttpResponse.json(
+              {
+                ...GENERIC_TRACK_RESPONSE,
+                tags: {
+                  ...GENERIC_TRACK_RESPONSE.tags,
+                  [category]: [
+                    ...GENERIC_TRACK_RESPONSE.tags[category as Categories],
+                    value
+                  ]
+                }
+              },
+              { headers: GENERIC_HEADERS }
+            )
+          }
+          return HttpResponse.json(INVALID_DATA_ERROR_MESSAGE, { status: 400 })
         }
-        return await res(ctx.status(400), ctx.json(INVALID_DATA_ERROR_MESSAGE))
+        return HttpResponse.json(NOT_FOUND_ERROR_MESSAGE, { status: 404 })
       }
-      return await res(ctx.status(404), ctx.json(NOT_FOUND_ERROR_MESSAGE))
+      return HttpResponse.json(GENERIC_ERROR_MESSAGE, { status: 403 })
     }
-    return await res(ctx.status(403), ctx.json(GENERIC_ERROR_MESSAGE))
-  }),
-  rest.post(`${API_HOST}/track/remove-tag/:trackId`, async (req, res, ctx) => {
-    if (isCredentialsValidAsAuthenticated(req)) {
-      const { trackId } = req.params
-      if (trackId === GENERIC_TRACK_RESPONSE.id) {
-        const { category, value } = await req.json()
-        if (typeof category !== 'undefined' && typeof value !== 'undefined') {
-          return await res(
-            ctx.status(200),
-            ctx.set(GENERIC_HEADERS),
-            ctx.json({
-              ...GENERIC_TRACK_RESPONSE,
-              tags: {
-                ...GENERIC_TRACK_RESPONSE.tags,
-                [category]: GENERIC_TRACK_RESPONSE.tags[
-                  category as Categories
-                ].filter((item) => item !== value)
-              }
-            })
-          )
+  ),
+  http.post(
+    `${API_HOST}/track/remove-tag/:trackId`,
+    async ({ request, params }) => {
+      if (isCredentialsValidAsAuthenticated(request)) {
+        const { trackId } = params
+        if (trackId === GENERIC_TRACK_RESPONSE.id) {
+          const { category, value } = (await request.json()) as {
+            category: string
+            value: string
+          }
+          if (typeof category !== 'undefined' && typeof value !== 'undefined') {
+            return HttpResponse.json(
+              {
+                ...GENERIC_TRACK_RESPONSE,
+                tags: {
+                  ...GENERIC_TRACK_RESPONSE.tags,
+                  [category]: GENERIC_TRACK_RESPONSE.tags[
+                    category as Categories
+                  ].filter(item => item !== value)
+                }
+              },
+              { headers: GENERIC_HEADERS }
+            )
+          }
+          return HttpResponse.json(INVALID_DATA_ERROR_MESSAGE, { status: 400 })
         }
-        return await res(ctx.status(400), ctx.json(INVALID_DATA_ERROR_MESSAGE))
+        return HttpResponse.json(NOT_FOUND_ERROR_MESSAGE, { status: 404 })
       }
-      return await res(ctx.status(404), ctx.json(NOT_FOUND_ERROR_MESSAGE))
+      return HttpResponse.json(GENERIC_ERROR_MESSAGE, { status: 403 })
     }
-    return await res(ctx.status(403), ctx.json(GENERIC_ERROR_MESSAGE))
-  }),
-  rest.post(`${API_HOST}/track/tag/`, async (req, res, ctx) => {
-    if (isCredentialsValidAsAuthenticated(req)) {
-      const data = await req.arrayBuffer()
+  ),
+  http.post(`${API_HOST}/track/tag/`, async ({ request }) => {
+    if (isCredentialsValidAsAuthenticated(request)) {
+      const data = await request.arrayBuffer()
       // FIXME: msw seems to be unable to parse FormData, just expect file of certain size for now
       if (data.byteLength > 1000) {
-        return await res(
-          ctx.status(200),
-          ctx.set(GENERIC_HEADERS),
-          ctx.json(GENERIC_TRACK_RESPONSE)
-        )
+        return HttpResponse.json(GENERIC_TRACK_RESPONSE, {
+          headers: GENERIC_HEADERS
+        })
       }
     }
-    return await res(ctx.status(403), ctx.json(GENERIC_ERROR_MESSAGE))
+    return HttpResponse.json(GENERIC_ERROR_MESSAGE, { status: 403 })
   })
 ]
 

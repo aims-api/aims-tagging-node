@@ -13,7 +13,6 @@ import { WrappedResponse } from '../../../src/helpers/response.js'
 import { authenticatedTestClient } from '../../client.js'
 import fs from 'fs'
 import path from 'path'
-import { sleep } from 'sleep'
 
 describe('track', () => {
   let track: Track
@@ -55,7 +54,6 @@ describe('track', () => {
           track = response.data
           break
         }
-        sleep(5)
       }
       expect(response).toEqual({
         data: expect.objectContaining({
