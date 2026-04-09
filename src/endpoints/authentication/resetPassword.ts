@@ -10,8 +10,8 @@ interface ResetPasswordRequest {
 }
 
 interface ResetPasswordResponse {
-  login: string,
-  status: string,
+  login: string
+  status: string
   user_id: string
 }
 
