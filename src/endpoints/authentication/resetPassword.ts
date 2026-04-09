@@ -10,7 +10,9 @@ interface ResetPasswordRequest {
 }
 
 interface ResetPasswordResponse {
-  message: string
+  login: string,
+  status: string,
+  user_id: string
 }
 
 const resetPassword = (client: () => AxiosInstance): ResetPasswordEndpoint => async (
@@ -21,8 +23,8 @@ const resetPassword = (client: () => AxiosInstance): ResetPasswordEndpoint => as
     password
   })
   const parsedResponse: ResetPasswordResponse = Array.isArray(response.data)
-    ? { message: response.data[0] as string }
-    : { message: response.data.message }
+    ? response.data[0]
+    : response.data
   return parsedResponse
 }
 
