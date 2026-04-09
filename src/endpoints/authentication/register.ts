@@ -8,7 +8,9 @@ interface RegisterRequest {
 }
 
 interface RegisterResponse {
+  login: string
   status: string
+  user_id: string
 }
 
 const register = (client: () => AxiosInstance): RegisterEndpoint => async (
