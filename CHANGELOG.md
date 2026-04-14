@@ -1,5 +1,11 @@
 # @aims-api/aims-tagging-node
 
+## 0.0.11
+
+### Patch Changes
+
+- e1b8c25: update shape of register and resetPassword endpoints so that they match with register-confirm
+
 ## 0.0.10
 
 ### Patch Changes
