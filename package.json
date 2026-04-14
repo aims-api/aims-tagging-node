@@ -3,7 +3,7 @@
   "packageManager": "pnpm@10.6.2",
   "version": "0.0.11",
   "description": "A client package for AIMS Tagging API",
-  "license": "UNLICENSED",
+  "license": "SEE LICENSE IN LICENSE",
   "homepage": "https://github.com/aims-api/aims-tagging-node",
   "author": "AIMS API <support@aimsapi.com> (https://aimsapi.com/)",
   "keywords": [
