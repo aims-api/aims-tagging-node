@@ -57,6 +57,7 @@ type SortOptions = SortOption[]
 
 interface ListRequestParameters {
   limit?: number
+  offset?: number
   orderBy?: SortOptions
 }
 
