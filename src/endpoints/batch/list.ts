@@ -21,9 +21,9 @@ type ListResponse = Batch[]
 const batchList = (client: () => AxiosInstance): ListEndpoint => async (
   request?: ListRequest
 ): PromiseWrapped<ListResponse> => {
-  const { preset, limit, orderBy, responseStructure } = request ?? {}
+  const { preset, limit, offset, orderBy, responseStructure } = request ?? {}
   const response = await client().get('/batch/list', {
-    params: { preset, limit, orderBy, responseStructure }
+    params: { preset, limit, offset, orderBy, responseStructure }
   })
   return withHeaders(response.headers, response.data)
 }
