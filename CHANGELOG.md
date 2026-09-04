@@ -1,5 +1,11 @@
 # @aims-api/aims-tagging-node
 
+## 0.0.12
+
+### Patch Changes
+
+- 242759c: batch list endpoint supports offset
+
 ## 0.0.11
 
 ### Patch Changes
